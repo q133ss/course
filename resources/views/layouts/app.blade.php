@@ -98,6 +98,9 @@
                 loginModal.classList.remove('flex');
             };
 
+            window.openLoginModal = openLoginModal;
+            window.closeLoginModal = closeLoginModal;
+
             loginButtons.forEach((button) => {
                 button.addEventListener('click', (event) => {
                     event.preventDefault();
@@ -120,68 +123,6 @@
                 if (event.key === 'Escape') {
                     closeLoginModal();
                 }
-            });
-
-            const videoItems = document.querySelectorAll('.video-item');
-
-            const collapseAllPanels = () => {
-                videoItems.forEach((item) => {
-                    const panel = item.querySelector('.video-panel');
-                    if (panel) {
-                        panel.classList.add('hidden');
-                        const playerPanel = panel.querySelector('.player-panel');
-                        const payPanel = panel.querySelector('.pay-panel');
-                        playerPanel?.classList.add('hidden');
-                        payPanel?.classList.add('hidden');
-                    }
-                });
-            };
-
-            videoItems.forEach((item) => {
-                item.addEventListener('click', (event) => {
-                    const target = event.target instanceof Element ? event.target : null;
-                    if (target && target.closest('.video-panel')) {
-                        return;
-                    }
-
-                    const access = item.dataset.access;
-                    const panel = item.querySelector('.video-panel');
-                    const playerPanel = panel?.querySelector('.player-panel');
-                    const payPanel = panel?.querySelector('.pay-panel');
-
-                    if (!panel) {
-                        return;
-                    }
-
-                    if (access === 'login') {
-                        openLoginModal();
-                        return;
-                    }
-
-                    if (access === 'allowed') {
-                        const isOpen = !panel.classList.contains('hidden') && playerPanel && !playerPanel.classList.contains('hidden');
-                        collapseAllPanels();
-                        if (!isOpen) {
-                            panel.classList.remove('hidden');
-                            playerPanel?.classList.remove('hidden');
-                            payPanel?.classList.add('hidden');
-                            setTimeout(() => {
-                                playerPanel?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }, 80);
-                        }
-                        return;
-                    }
-
-                    if (access === 'pay') {
-                        const isOpen = !panel.classList.contains('hidden') && payPanel && !payPanel.classList.contains('hidden');
-                        collapseAllPanels();
-                        if (!isOpen) {
-                            panel.classList.remove('hidden');
-                            payPanel?.classList.remove('hidden');
-                            playerPanel?.classList.add('hidden');
-                        }
-                    }
-                });
             });
         });
     </script>
