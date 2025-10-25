@@ -187,18 +187,19 @@
             {{ $courses->links('pagination::tailwind') }}
         </div>
 
-        <div
-            x-show="modal.open"
-            x-transition.opacity
-            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 py-8"
-            x-on:click.self="closeModal()"
-            x-on:keydown.escape.window="closeModal()"
-            x-cloak
-        >
+        <template x-if="modal.open && modal.type">
             <div
-                x-ref="modalContent"
-                tabindex="-1"
-                x-on:keydown.tab="focusTrap($event)"
+                x-show="modal.open && modal.type"
+                x-transition.opacity
+                class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 py-8"
+                x-on:click.self="closeModal()"
+                x-on:keydown.escape.window="closeModal()"
+                x-cloak
+            >
+                <div
+                    x-ref="modalContent"
+                    tabindex="-1"
+                    x-on:keydown.tab="focusTrap($event)"
                 :class="{
                     'max-w-6xl': modal.type === 'player',
                     'max-w-lg': modal.type !== 'player'
@@ -219,7 +220,7 @@
                     @include('partials.login-modal')
                 </template>
             </div>
-        </div>
+        </template>
     </div>
 
     {{--
