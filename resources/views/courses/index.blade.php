@@ -262,7 +262,7 @@
                     const access = item.dataset.access;
 
                     if (access === 'login') {
-                        window.openLoginModal?.();
+                        window.openAuthModal?.('login');
                         return;
                     }
 
