@@ -37,15 +37,20 @@
                         ['label' => 'Профиль', 'href' => url('/profile'), 'active' => request()->is('profile')],
                     ];
                 @endphp
-                <nav class="flex items-center gap-1 text-sm flex-wrap justify-end">
+                <nav class="hidden md:flex items-center gap-1 text-sm flex-wrap justify-end" data-desktop-nav>
                     @foreach ($navItems as $item)
                         <a href="{{ $item['href'] }}"
+                           @if ($item['label'] === 'Мои курсы')
+                               @guest
+                                   data-requires-auth="login"
+                               @endguest
+                           @endif
                            class="px-3 py-2 rounded-full text-sm font-medium transition-colors {{ $item['active'] ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }}">
                             {{ $item['label'] }}
                         </a>
                     @endforeach
                 </nav>
-                <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-3" data-desktop-actions>
                     @guest
                         <button type="button"
                                 data-register-trigger
@@ -71,9 +76,81 @@
                         </form>
                     @endauth
                 </div>
+                <button type="button" class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500" data-mobile-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
+                    <span class="sr-only">Открыть меню</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
+
+    <div
+        class="fixed inset-0 z-50 hidden md:hidden"
+        data-mobile-menu-modal
+        aria-hidden="true"
+    >
+        <div class="absolute inset-0 bg-gray-900/60" data-mobile-menu-backdrop></div>
+        <div class="relative z-10 flex min-h-full flex-col items-stretch p-4">
+            <div class="mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl" data-mobile-menu-content>
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+                    <h2 class="text-base font-semibold text-gray-900">Меню</h2>
+                    <button
+                        type="button"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                        data-mobile-menu-close
+                        aria-label="Закрыть меню"
+                    >
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="max-h-[70vh] overflow-y-auto px-5 py-6 space-y-6">
+                    <nav class="flex flex-col gap-2 text-sm">
+                        @foreach ($navItems as $item)
+                            <a href="{{ $item['href'] }}"
+                               @if ($item['label'] === 'Мои курсы')
+                                   @guest
+                                       data-requires-auth="login"
+                                   @endguest
+                               @endif
+                               class="px-4 py-2 rounded-xl font-medium transition-colors {{ $item['active'] ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }}">
+                                {{ $item['label'] }}
+                            </a>
+                        @endforeach
+                    </nav>
+                    <div class="border-t border-gray-100 pt-4">
+                        @guest
+                            <div class="flex flex-col gap-2">
+                                <button type="button" data-register-trigger class="w-full px-4 py-2 rounded-xl border border-blue-600 text-blue-600 text-sm font-semibold hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
+                                    Регистрация
+                                </button>
+                                <button type="button" data-login-trigger class="w-full px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
+                                    Войти
+                                </button>
+                            </div>
+                        @endguest
+                        @auth
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</div>
+                                    <div class="text-xs text-gray-500">Добро пожаловать!</div>
+                                </div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="px-4 py-2 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-400">
+                                        Выйти
+                                    </button>
+                                </form>
+                            </div>
+                        @endauth
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         @yield('content')
@@ -87,17 +164,19 @@
         aria-hidden="true"
     >
         <div class="auth-modal-backdrop absolute inset-0 bg-gray-900/60"></div>
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto p-6" role="dialog" aria-modal="true" aria-labelledby="auth-modal-heading">
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-auto p-8 ring-1 ring-gray-100" role="dialog" aria-modal="true" aria-labelledby="auth-modal-heading">
             <h2 id="auth-modal-heading" class="sr-only">Вход и регистрация</h2>
-            <button type="button" id="auth-modal-close" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500" aria-label="Закрыть">
-                &times;
+            <button type="button" id="auth-modal-close" class="absolute top-4 right-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500" aria-label="Закрыть">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
-            <div class="flex justify-center mb-6" role="tablist">
+            <div class="flex justify-center mb-8 bg-gray-100 rounded-full p-1" role="tablist">
                 <button
                     type="button"
                     data-auth-tab="login"
                     id="auth-tab-login"
-                    class="px-4 py-2 text-sm font-semibold rounded-full flex-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                    class="px-5 py-2 text-sm font-semibold rounded-full flex-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                     role="tab"
                     aria-controls="auth-panel-login"
                 >
@@ -116,7 +195,7 @@
             </div>
 
             <div data-auth-panel="login" id="auth-panel-login" role="tabpanel" aria-labelledby="auth-tab-login" class="space-y-4">
-                <h2 class="text-xl font-semibold">Добро пожаловать обратно!</h2>
+                <h2 class="text-2xl font-semibold text-gray-900">Добро пожаловать обратно!</h2>
                 <p class="text-sm text-gray-600">Введите email и пароль, чтобы продолжить обучение.</p>
 
                 @if ($errors->login->any())
@@ -132,15 +211,15 @@
                 <form method="POST" action="{{ route('login') }}" class="space-y-4" novalidate>
                     @csrf
                     <div>
-                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input id="login-email" name="email" type="email" value="{{ $loginOldEmail }}" required autocomplete="email" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="you@example.com">
+                        <label for="login-email" class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                        <input id="login-email" name="email" type="email" value="{{ $loginOldEmail }}" required autocomplete="email" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-gray-900 shadow-inner focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none caret-blue-600" placeholder="you@example.com">
                         @error('email', 'login')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
-                        <input id="login-password" name="password" type="password" required autocomplete="current-password" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="••••••••">
+                        <label for="login-password" class="block text-sm font-semibold text-gray-700 mb-1">Пароль</label>
+                        <input id="login-password" name="password" type="password" required autocomplete="current-password" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-gray-900 shadow-inner focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none caret-blue-600" placeholder="••••••••">
                         @error('password', 'login')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -152,7 +231,7 @@
                         </label>
                         <a href="#" class="text-gray-500 hover:text-blue-600">Забыли пароль?</a>
                     </div>
-                    <button type="submit" class="w-full py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Войти</button>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 transition">Войти</button>
                 </form>
                 <p class="text-sm text-gray-600 text-center">
                     Нет аккаунта?
@@ -161,7 +240,7 @@
             </div>
 
             <div data-auth-panel="register" id="auth-panel-register" role="tabpanel" aria-labelledby="auth-tab-register" class="space-y-4 hidden">
-                <h2 class="text-xl font-semibold">Создайте аккаунт</h2>
+                <h2 class="text-2xl font-semibold text-gray-900">Создайте аккаунт</h2>
                 <p class="text-sm text-gray-600">Получите доступ ко всем курсам и персональному кабинету.</p>
 
                 @if ($errors->register->any())
@@ -177,34 +256,34 @@
                 <form method="POST" action="{{ route('register') }}" class="space-y-4" novalidate>
                     @csrf
                     <div>
-                        <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                        <input id="register-name" name="name" type="text" value="{{ $registerOldName }}" required autocomplete="name" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Иван Иванов">
+                        <label for="register-name" class="block text-sm font-semibold text-gray-700 mb-1">Имя</label>
+                        <input id="register-name" name="name" type="text" value="{{ $registerOldName }}" required autocomplete="name" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-gray-900 shadow-inner focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none caret-blue-600" placeholder="Иван Иванов">
                         @error('name', 'register')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input id="register-email" name="email" type="email" value="{{ $registerOldEmail }}" required autocomplete="email" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="you@example.com">
+                        <label for="register-email" class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                        <input id="register-email" name="email" type="email" value="{{ $registerOldEmail }}" required autocomplete="email" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-gray-900 shadow-inner focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none caret-blue-600" placeholder="you@example.com">
                         @error('email', 'register')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
-                        <input id="register-password" name="password" type="password" required autocomplete="new-password" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Не менее 8 символов">
+                        <label for="register-password" class="block text-sm font-semibold text-gray-700 mb-1">Пароль</label>
+                        <input id="register-password" name="password" type="password" required autocomplete="new-password" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-gray-900 shadow-inner focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none caret-blue-600" placeholder="Не менее 8 символов">
                         @error('password', 'register')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <label for="register-password-confirmation" class="block text-sm font-medium text-gray-700 mb-1">Подтверждение пароля</label>
-                        <input id="register-password-confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Повторите пароль">
+                        <label for="register-password-confirmation" class="block text-sm font-semibold text-gray-700 mb-1">Подтверждение пароля</label>
+                        <input id="register-password-confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-gray-900 shadow-inner focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:outline-none caret-blue-600" placeholder="Повторите пароль">
                         @error('password_confirmation', 'register')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="w-full py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Зарегистрироваться</button>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 transition">Зарегистрироваться</button>
                 </form>
                 <p class="text-sm text-gray-600 text-center">
                     Уже есть аккаунт?
@@ -220,6 +299,12 @@
             const closeButton = document.getElementById('auth-modal-close');
             const loginButtons = document.querySelectorAll('[data-login-trigger]');
             const registerButtons = document.querySelectorAll('[data-register-trigger]');
+            const authRequiredLinks = document.querySelectorAll('[data-requires-auth]');
+            const mobileToggleButton = document.querySelector('[data-mobile-menu-toggle]');
+            const mobileMenuModal = document.querySelector('[data-mobile-menu-modal]');
+            const mobileMenuBackdrop = mobileMenuModal?.querySelector('[data-mobile-menu-backdrop]');
+            const mobileMenuContent = mobileMenuModal?.querySelector('[data-mobile-menu-content]');
+            const mobileMenuCloseButton = mobileMenuModal?.querySelector('[data-mobile-menu-close]');
 
             if (!authModal) {
                 return;
@@ -232,6 +317,7 @@
 
             let currentTab = authModal.dataset.defaultTab || 'login';
             let lastFocusedElement = null;
+            let mobileMenuLastFocusedElement = null;
 
             const focusFirstField = (tab) => {
                 const panel = authModal.querySelector(`[data-auth-panel="${tab}"]`);
@@ -291,21 +377,83 @@
                 lastFocusedElement = null;
             };
 
+            const focusFirstMobileLink = () => {
+                if (!mobileMenuContent) {
+                    return;
+                }
+
+                window.requestAnimationFrame(() => {
+                    const firstInteractive = mobileMenuContent.querySelector('a, button');
+                    firstInteractive?.focus();
+                });
+            };
+
+            const openMobileMenu = () => {
+                if (!mobileMenuModal || !mobileToggleButton) {
+                    return;
+                }
+
+                mobileMenuLastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                body.classList.add('overflow-hidden');
+                mobileMenuModal.classList.remove('hidden');
+                mobileMenuModal.setAttribute('aria-hidden', 'false');
+                mobileToggleButton.setAttribute('aria-expanded', 'true');
+                focusFirstMobileLink();
+            };
+
+            const closeMobileMenu = () => {
+                if (!mobileMenuModal || !mobileToggleButton) {
+                    return;
+                }
+
+                mobileMenuModal.classList.add('hidden');
+                mobileMenuModal.setAttribute('aria-hidden', 'true');
+                body.classList.remove('overflow-hidden');
+                mobileToggleButton.setAttribute('aria-expanded', 'false');
+
+                if (mobileMenuLastFocusedElement) {
+                    mobileMenuLastFocusedElement.focus();
+                }
+
+                mobileMenuLastFocusedElement = null;
+            };
+
+            const toggleMobileMenu = () => {
+                if (!mobileMenuModal || !mobileToggleButton) {
+                    return;
+                }
+
+                if (mobileMenuModal.classList.contains('hidden')) {
+                    openMobileMenu();
+                } else {
+                    closeMobileMenu();
+                }
+            };
+
             window.openAuthModal = openModal;
             window.closeAuthModal = closeModal;
 
+            const handleAuthRequiredClick = (event, targetTab = 'login') => {
+                event.preventDefault();
+                closeMobileMenu();
+                openModal(targetTab);
+            };
+
             loginButtons.forEach((button) => {
                 button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    openModal('login');
+                    handleAuthRequiredClick(event, 'login');
                 });
             });
 
             registerButtons.forEach((button) => {
                 button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    openModal('register');
+                    handleAuthRequiredClick(event, 'register');
                 });
+            });
+
+            authRequiredLinks.forEach((link) => {
+                const targetTab = link.dataset.requiresAuth || 'login';
+                link.addEventListener('click', (event) => handleAuthRequiredClick(event, targetTab));
             });
 
             tabButtons.forEach((button) => {
@@ -336,9 +484,41 @@
                 }
             });
 
+            mobileToggleButton?.addEventListener('click', (event) => {
+                event.preventDefault();
+                toggleMobileMenu();
+            });
+
+            mobileMenuBackdrop?.addEventListener('click', () => closeMobileMenu());
+
+            mobileMenuCloseButton?.addEventListener('click', (event) => {
+                event.preventDefault();
+                closeMobileMenu();
+            });
+
+            mobileMenuContent?.querySelectorAll('a, button').forEach((interactiveElement) => {
+                interactiveElement.addEventListener('click', () => closeMobileMenu());
+            });
+
             document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && !authModal.classList.contains('hidden')) {
+                if (event.key !== 'Escape') {
+                    return;
+                }
+
+                let handled = false;
+
+                if (mobileMenuModal && !mobileMenuModal.classList.contains('hidden')) {
+                    closeMobileMenu();
+                    handled = true;
+                }
+
+                if (authModal && !authModal.classList.contains('hidden')) {
                     closeModal();
+                    handled = true;
+                }
+
+                if (handled) {
+                    event.preventDefault();
                 }
             });
 
