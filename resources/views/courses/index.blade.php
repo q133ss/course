@@ -7,25 +7,37 @@
                 <h1 class="text-2xl font-semibold text-gray-900">Каталог курсов</h1>
                 <p class="text-sm text-gray-500 mt-1">Выберите курс и начните обучение уже сегодня.</p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <form method="GET" action="{{ route('courses.index') }}" class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <div class="flex-1">
                     <label class="sr-only" for="filter-search">Поиск</label>
-                    <input id="filter-search" type="search" placeholder="Поиск по курсам"
-                           class="w-full rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-sm"
-                           disabled>
-                    {{-- TODO: добавить рабочий поиск по курсам --}}
+                    <input
+                        id="filter-search"
+                        type="search"
+                        name="search"
+                        placeholder="Поиск по курсам"
+                        value="{{ request('search') }}"
+                        class="w-full rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-sm"
+                    >
                 </div>
-                <div>
-                    <label class="sr-only" for="filter-type">Тип курса</label>
-                    <select id="filter-type" class="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-sm"
-                            disabled>
-                        <option value="all">Все курсы</option>
-                        <option value="free">Бесплатные</option>
-                        <option value="paid">Платные</option>
-                    </select>
-                    {{-- TODO: реализовать фильтрацию по типу курса --}}
+                <div class="flex items-center gap-3">
+                    <div>
+                        <label class="sr-only" for="filter-type">Тип курса</label>
+                        <select
+                            id="filter-type"
+                            name="type"
+                            class="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-sm"
+                            onchange="this.form.submit()"
+                        >
+                            <option value="all" @selected(request('type', 'all') === 'all')>Все курсы</option>
+                            <option value="free" @selected(request('type') === 'free')>Бесплатные</option>
+                            <option value="paid" @selected(request('type') === 'paid')>Платные</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                        Найти
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </section>
 

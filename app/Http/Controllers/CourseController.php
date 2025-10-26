@@ -12,6 +12,7 @@ class CourseController extends Controller
     public function index(Request $request): View
     {
         $courses = Course::query()
+            ->filter($request->only(['search', 'type']))
             ->with(['videos' => fn ($query) => $query->orderBy('sort_order')])
             ->orderBy('created_at', 'desc')
             ->get();
