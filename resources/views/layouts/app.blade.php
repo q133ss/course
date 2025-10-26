@@ -32,15 +32,29 @@
                 </a>
                 @php
                     $navItems = [
-                        ['label' => 'Главная', 'href' => url('/'), 'active' => request()->routeIs('courses.index') || request()->is('/')],
-                        ['label' => 'Мои курсы', 'href' => url('/courses?mine=1'), 'active' => request()->fullUrlIs(url('/courses?mine=1'))],
-                        ['label' => 'Профиль', 'href' => url('/profile'), 'active' => request()->is('profile')],
+                        [
+                            'label' => 'Главная',
+                            'href' => route('courses.index'),
+                            'active' => request()->routeIs('courses.index') || request()->is('/'),
+                        ],
+                        [
+                            'label' => 'Мои курсы',
+                            'href' => url('/courses?mine=1'),
+                            'active' => request()->fullUrlIs(url('/courses?mine=1')),
+                            'requiresAuth' => true,
+                        ],
+                        [
+                            'label' => 'Профиль',
+                            'href' => route('profile.show'),
+                            'active' => request()->routeIs('profile.show'),
+                            'requiresAuth' => true,
+                        ],
                     ];
                 @endphp
                 <nav class="hidden md:flex items-center gap-1 text-sm flex-wrap justify-end" data-desktop-nav>
                     @foreach ($navItems as $item)
                         <a href="{{ $item['href'] }}"
-                           @if ($item['label'] === 'Мои курсы')
+                           @if (($item['requiresAuth'] ?? false))
                                @guest
                                    data-requires-auth="login"
                                @endguest
@@ -111,7 +125,7 @@
                     <nav class="flex flex-col gap-2 text-sm">
                         @foreach ($navItems as $item)
                             <a href="{{ $item['href'] }}"
-                               @if ($item['label'] === 'Мои курсы')
+                               @if (($item['requiresAuth'] ?? false))
                                    @guest
                                        data-requires-auth="login"
                                    @endguest
