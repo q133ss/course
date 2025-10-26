@@ -105,9 +105,27 @@
                 </div>
             </article>
         @empty
+            @php
+                $searchQuery = trim((string) request('search'));
+                $typeFilter = request('type');
+                $hasTypeFilter = filled($typeFilter) && $typeFilter !== 'all';
+            @endphp
             <div class="text-center py-16 bg-white rounded-2xl shadow">
-                <h2 class="text-xl font-semibold text-gray-900">Курсы пока не добавлены</h2>
-                <p class="text-sm text-gray-500 mt-2">Загляните позже — мы готовим интересные материалы.</p>
+                @if ($searchQuery !== '')
+                    <h2 class="text-xl font-semibold text-gray-900">По запросу «{{ e($searchQuery) }}» ничего не найдено</h2>
+                    <p class="text-sm text-gray-500 mt-2">Попробуйте изменить поисковую фразу или сбросить фильтры.</p>
+                @elseif ($hasTypeFilter)
+                    <h2 class="text-xl font-semibold text-gray-900">Курсы по выбранным фильтрам не найдены</h2>
+                    <p class="text-sm text-gray-500 mt-2">Измените параметры фильтрации или покажите все курсы.</p>
+                @else
+                    <h2 class="text-xl font-semibold text-gray-900">Курсы пока не добавлены</h2>
+                    <p class="text-sm text-gray-500 mt-2">Загляните позже — мы готовим интересные материалы.</p>
+                @endif
+                @if ($searchQuery !== '' || $hasTypeFilter)
+                    <a href="{{ route('courses.index') }}" class="inline-flex items-center justify-center mt-6 px-4 py-2 rounded-lg border border-blue-200 text-sm font-semibold text-blue-600 hover:bg-blue-50">
+                        Сбросить фильтры
+                    </a>
+                @endif
             </div>
         @endforelse
     </section>

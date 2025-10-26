@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Course extends Model
 {
@@ -48,11 +49,22 @@ class Course extends Model
     {
         $query->when(
             filled($filters['search'] ?? null),
-            fn (Builder $query, string $search) => $query->where(function (Builder $query) use ($search) {
-                $query
-                    ->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            })
+            function (Builder $query, string $search) {
+                $searchTerm = trim($search);
+
+                if ($searchTerm === '') {
+                    return;
+                }
+
+                $normalized = Str::lower($searchTerm);
+                $likeExpression = "%{$normalized}%";
+
+                $query->where(function (Builder $query) use ($likeExpression) {
+                    $query
+                        ->whereRaw('LOWER(title) LIKE ?', [$likeExpression])
+                        ->orWhereRaw('LOWER(description) LIKE ?', [$likeExpression]);
+                });
+            }
         );
 
         $query->when(
