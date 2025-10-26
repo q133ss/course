@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Course extends Model
 {
@@ -38,5 +40,41 @@ class Course extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(Purchase::class);
+    }
+
+    /**
+     * Apply the provided filters to the query.
+     */
+    public function scopeFilter(Builder $query, array $filters): void
+    {
+        $query->when(
+            filled($filters['search'] ?? null),
+            function (Builder $query, string $search) {
+                $searchTerm = trim($search);
+
+                if ($searchTerm === '') {
+                    return;
+                }
+
+                $normalized = Str::lower($searchTerm);
+                $likeExpression = "%{$normalized}%";
+
+                $query->where(function (Builder $query) use ($likeExpression) {
+                    $query
+                        ->whereRaw('LOWER(title) LIKE ?', [$likeExpression])
+                        ->orWhereRaw('LOWER(description) LIKE ?', [$likeExpression]);
+                });
+            }
+        );
+
+        $query->when(
+            ($filters['type'] ?? null) === 'free',
+            fn (Builder $query) => $query->where('is_free', true)
+        );
+
+        $query->when(
+            ($filters['type'] ?? null) === 'paid',
+            fn (Builder $query) => $query->where('is_free', false)
+        );
     }
 }
