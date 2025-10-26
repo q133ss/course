@@ -86,46 +86,68 @@
         </div>
     </header>
 
-    <div id="mobile-menu" class="md:hidden hidden border-b border-gray-100 bg-white shadow-sm" data-mobile-menu-panel>
-        <div class="px-4 py-4 space-y-4">
-            <nav class="flex flex-col gap-2 text-sm">
-                @foreach ($navItems as $item)
-                    <a href="{{ $item['href'] }}"
-                       @if ($item['label'] === 'Мои курсы')
-                           @guest
-                               data-requires-auth="login"
-                           @endguest
-                       @endif
-                       class="px-4 py-2 rounded-xl font-medium transition-colors {{ $item['active'] ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }}">
-                        {{ $item['label'] }}
-                    </a>
-                @endforeach
-            </nav>
-            <div class="border-t border-gray-100 pt-4">
-                @guest
-                    <div class="flex flex-col gap-2">
-                        <button type="button" data-register-trigger class="w-full px-4 py-2 rounded-xl border border-blue-600 text-blue-600 text-sm font-semibold hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
-                            Регистрация
-                        </button>
-                        <button type="button" data-login-trigger class="w-full px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
-                            Войти
-                        </button>
+    <div
+        class="fixed inset-0 z-50 hidden md:hidden"
+        data-mobile-menu-modal
+        aria-hidden="true"
+    >
+        <div class="absolute inset-0 bg-gray-900/60" data-mobile-menu-backdrop></div>
+        <div class="relative z-10 flex min-h-full flex-col items-stretch p-4">
+            <div class="mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl" data-mobile-menu-content>
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+                    <h2 class="text-base font-semibold text-gray-900">Меню</h2>
+                    <button
+                        type="button"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                        data-mobile-menu-close
+                        aria-label="Закрыть меню"
+                    >
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="max-h-[70vh] overflow-y-auto px-5 py-6 space-y-6">
+                    <nav class="flex flex-col gap-2 text-sm">
+                        @foreach ($navItems as $item)
+                            <a href="{{ $item['href'] }}"
+                               @if ($item['label'] === 'Мои курсы')
+                                   @guest
+                                       data-requires-auth="login"
+                                   @endguest
+                               @endif
+                               class="px-4 py-2 rounded-xl font-medium transition-colors {{ $item['active'] ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }}">
+                                {{ $item['label'] }}
+                            </a>
+                        @endforeach
+                    </nav>
+                    <div class="border-t border-gray-100 pt-4">
+                        @guest
+                            <div class="flex flex-col gap-2">
+                                <button type="button" data-register-trigger class="w-full px-4 py-2 rounded-xl border border-blue-600 text-blue-600 text-sm font-semibold hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
+                                    Регистрация
+                                </button>
+                                <button type="button" data-login-trigger class="w-full px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
+                                    Войти
+                                </button>
+                            </div>
+                        @endguest
+                        @auth
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</div>
+                                    <div class="text-xs text-gray-500">Добро пожаловать!</div>
+                                </div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="px-4 py-2 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-400">
+                                        Выйти
+                                    </button>
+                                </form>
+                            </div>
+                        @endauth
                     </div>
-                @endguest
-                @auth
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <div class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</div>
-                            <div class="text-xs text-gray-500">Добро пожаловать!</div>
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="px-4 py-2 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-400">
-                                Выйти
-                            </button>
-                        </form>
-                    </div>
-                @endauth
+                </div>
             </div>
         </div>
     </div>
@@ -279,7 +301,10 @@
             const registerButtons = document.querySelectorAll('[data-register-trigger]');
             const authRequiredLinks = document.querySelectorAll('[data-requires-auth]');
             const mobileToggleButton = document.querySelector('[data-mobile-menu-toggle]');
-            const mobileMenuPanel = document.querySelector('[data-mobile-menu-panel]');
+            const mobileMenuModal = document.querySelector('[data-mobile-menu-modal]');
+            const mobileMenuBackdrop = mobileMenuModal?.querySelector('[data-mobile-menu-backdrop]');
+            const mobileMenuContent = mobileMenuModal?.querySelector('[data-mobile-menu-content]');
+            const mobileMenuCloseButton = mobileMenuModal?.querySelector('[data-mobile-menu-close]');
 
             if (!authModal) {
                 return;
@@ -292,6 +317,7 @@
 
             let currentTab = authModal.dataset.defaultTab || 'login';
             let lastFocusedElement = null;
+            let mobileMenuLastFocusedElement = null;
 
             const focusFirstField = (tab) => {
                 const panel = authModal.querySelector(`[data-auth-panel="${tab}"]`);
@@ -351,6 +377,59 @@
                 lastFocusedElement = null;
             };
 
+            const focusFirstMobileLink = () => {
+                if (!mobileMenuContent) {
+                    return;
+                }
+
+                window.requestAnimationFrame(() => {
+                    const firstInteractive = mobileMenuContent.querySelector('a, button');
+                    firstInteractive?.focus();
+                });
+            };
+
+            const openMobileMenu = () => {
+                if (!mobileMenuModal || !mobileToggleButton) {
+                    return;
+                }
+
+                mobileMenuLastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                body.classList.add('overflow-hidden');
+                mobileMenuModal.classList.remove('hidden');
+                mobileMenuModal.setAttribute('aria-hidden', 'false');
+                mobileToggleButton.setAttribute('aria-expanded', 'true');
+                focusFirstMobileLink();
+            };
+
+            const closeMobileMenu = () => {
+                if (!mobileMenuModal || !mobileToggleButton) {
+                    return;
+                }
+
+                mobileMenuModal.classList.add('hidden');
+                mobileMenuModal.setAttribute('aria-hidden', 'true');
+                body.classList.remove('overflow-hidden');
+                mobileToggleButton.setAttribute('aria-expanded', 'false');
+
+                if (mobileMenuLastFocusedElement) {
+                    mobileMenuLastFocusedElement.focus();
+                }
+
+                mobileMenuLastFocusedElement = null;
+            };
+
+            const toggleMobileMenu = () => {
+                if (!mobileMenuModal || !mobileToggleButton) {
+                    return;
+                }
+
+                if (mobileMenuModal.classList.contains('hidden')) {
+                    openMobileMenu();
+                } else {
+                    closeMobileMenu();
+                }
+            };
+
             window.openAuthModal = openModal;
             window.closeAuthModal = closeModal;
 
@@ -405,37 +484,42 @@
                 }
             });
 
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && !authModal.classList.contains('hidden')) {
-                    closeModal();
-                }
-            });
-
-            const closeMobileMenu = () => {
-                if (!mobileMenuPanel || !mobileToggleButton) {
-                    return;
-                }
-
-                mobileMenuPanel.classList.add('hidden');
-                mobileToggleButton.setAttribute('aria-expanded', 'false');
-            };
-
-            const toggleMobileMenu = () => {
-                if (!mobileMenuPanel || !mobileToggleButton) {
-                    return;
-                }
-
-                const isOpen = mobileMenuPanel.classList.toggle('hidden');
-                mobileToggleButton.setAttribute('aria-expanded', (!isOpen).toString());
-            };
-
             mobileToggleButton?.addEventListener('click', (event) => {
                 event.preventDefault();
                 toggleMobileMenu();
             });
 
-            mobileMenuPanel?.querySelectorAll('a, button').forEach((interactiveElement) => {
+            mobileMenuBackdrop?.addEventListener('click', () => closeMobileMenu());
+
+            mobileMenuCloseButton?.addEventListener('click', (event) => {
+                event.preventDefault();
+                closeMobileMenu();
+            });
+
+            mobileMenuContent?.querySelectorAll('a, button').forEach((interactiveElement) => {
                 interactiveElement.addEventListener('click', () => closeMobileMenu());
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape') {
+                    return;
+                }
+
+                let handled = false;
+
+                if (mobileMenuModal && !mobileMenuModal.classList.contains('hidden')) {
+                    closeMobileMenu();
+                    handled = true;
+                }
+
+                if (authModal && !authModal.classList.contains('hidden')) {
+                    closeModal();
+                    handled = true;
+                }
+
+                if (handled) {
+                    event.preventDefault();
+                }
             });
 
             const shouldOpen = authModal.dataset.shouldOpen === 'true';
