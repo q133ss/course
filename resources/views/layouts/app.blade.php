@@ -39,8 +39,8 @@
                         ],
                         [
                             'label' => 'Мои курсы',
-                            'href' => url('/courses?mine=1'),
-                            'active' => request()->fullUrlIs(url('/courses?mine=1')),
+                            'href' => route('courses.my'),
+                            'active' => request()->routeIs('courses.my'),
                             'requiresAuth' => true,
                         ],
                         [
