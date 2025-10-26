@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Course;
-use App\Models\Purchase;
 use App\Models\User;
 use App\Models\UserProgress;
 use Illuminate\Database\Seeder;
@@ -153,55 +152,6 @@ class CourseContentSeeder extends Seeder
 
         if ($users->isEmpty()) {
             return;
-        }
-
-        $purchaseDefinitions = [
-            [
-                'user' => $users->first(),
-                'course_slug' => 'laravel-fundamentals',
-                'amount' => 0,
-                'payment_status' => 'paid',
-                'payment_method' => 'free',
-                'purchased_at' => Carbon::now()->subDays(7),
-            ],
-            [
-                'user' => $users->firstWhere('email', 'test@example.com') ?? $users->get(1),
-                'course_slug' => 'vue-for-laravel',
-                'amount' => 49.90,
-                'payment_status' => 'paid',
-                'payment_method' => 'stripe',
-                'purchased_at' => Carbon::now()->subDays(3),
-            ],
-            [
-                'user' => $users->get(2) ?? $users->first(),
-                'course_slug' => 'laravel-advanced',
-                'amount' => 79.00,
-                'payment_status' => 'pending',
-                'payment_method' => 'paypal',
-                'purchased_at' => Carbon::now()->subDay(),
-            ],
-        ];
-
-        foreach ($purchaseDefinitions as $purchaseDefinition) {
-            $user = $purchaseDefinition['user'];
-            $course = $courses[$purchaseDefinition['course_slug']] ?? null;
-
-            if (!$user || !$course) {
-                continue;
-            }
-
-            Purchase::query()->updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'course_id' => $course->id,
-                ],
-                [
-                    'amount' => $purchaseDefinition['amount'],
-                    'payment_status' => $purchaseDefinition['payment_status'],
-                    'payment_method' => $purchaseDefinition['payment_method'],
-                    'purchased_at' => $purchaseDefinition['purchased_at'],
-                ]
-            );
         }
 
         $progressDefinitions = [
