@@ -244,6 +244,49 @@
                 hideElement(preorderSection);
             };
 
+            const showPreorderThankYou = (message) => {
+                if (!message) {
+                    return;
+                }
+
+                let banner = document.getElementById('video-modal-preorder-thanks');
+                let messageElement;
+
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = 'video-modal-preorder-thanks';
+                    banner.className = 'fixed inset-x-0 top-4 z-50 flex justify-center px-4';
+
+                    messageElement = document.createElement('div');
+                    messageElement.className = 'max-w-md w-full rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-lg px-4 py-3 text-center';
+                    messageElement.setAttribute('role', 'status');
+
+                    banner.appendChild(messageElement);
+                    document.body.appendChild(banner);
+                } else {
+                    messageElement = banner.firstElementChild;
+                }
+
+                if (messageElement) {
+                    messageElement.textContent = message;
+                }
+
+                banner.classList.remove('hidden');
+                banner.style.display = 'flex';
+
+                const previousTimeoutId = banner.dataset.hideTimeoutId;
+
+                if (previousTimeoutId) {
+                    window.clearTimeout(Number(previousTimeoutId));
+                }
+
+                const timeoutId = window.setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 4000);
+
+                banner.dataset.hideTimeoutId = String(timeoutId);
+            };
+
             const populateVideoContent = (item) => {
                 const dataset = item.dataset;
 
@@ -496,11 +539,8 @@
                         setStatusMessage(preorderSuccessEl, '');
                     } else {
                         const message = data?.message || 'Заявка отправлена!';
-                        setStatusMessage(preorderSuccessEl, message);
-                        setStatusMessage(preorderErrorEl, '');
-                        if (preorderContactInput) {
-                            preorderContactInput.value = contactValue;
-                        }
+                        closeVideoModal();
+                        showPreorderThankYou(message);
                     }
                 } catch (error) {
                     setStatusMessage(preorderErrorEl, 'Не удалось отправить заявку. Проверьте подключение и попробуйте снова.');

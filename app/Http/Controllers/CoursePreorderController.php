@@ -35,19 +35,66 @@ class CoursePreorderController extends Controller
             $name = $name ?: $user->name;
         }
 
-        $preorder = CoursePreorder::query()->updateOrCreate(
-            [
+        if ($user) {
+            $preorder = CoursePreorder::query()
+                ->where('course_id', $course->id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (! $preorder) {
+                $preorder = CoursePreorder::query()
+                    ->where('course_id', $course->id)
+                    ->where('contact', $contact)
+                    ->whereNull('user_id')
+                    ->first();
+            }
+        } else {
+            $preorder = CoursePreorder::query()
+                ->where('course_id', $course->id)
+                ->where('contact', $contact)
+                ->first();
+        }
+
+        if (! $preorder) {
+            $preorder = new CoursePreorder([
                 'course_id' => $course->id,
-                'contact' => $contact,
-            ],
-            [
-                'user_id' => $user?->id,
-                'name' => $name,
-            ]
-        );
+            ]);
+        }
+
+        $contactIsTaken = CoursePreorder::query()
+            ->where('course_id', $course->id)
+            ->where('contact', $contact)
+            ->when($preorder->exists, fn ($query) => $query->where('id', '!=', $preorder->id))
+            ->exists();
+
+        if ($contactIsTaken) {
+            $message = 'Эти контактные данные уже использованы для заявки на этот курс.';
+
+            return response()->json([
+                'message' => $message,
+                'errors' => [
+                    'contact' => [$message],
+                ],
+            ], 422);
+        }
+
+        $preorder->contact = $contact;
+        $preorder->name = $name;
+
+        if ($user) {
+            $preorder->user_id = $user->id;
+        } elseif (! $preorder->exists) {
+            $preorder->user_id = null;
+        }
+
+        $preorder->save();
+
+        $message = $preorder->wasRecentlyCreated
+            ? 'Заявка отправлена. Мы свяжемся с вами в ближайшее время!'
+            : 'Данные заявки обновлены. Мы свяжемся с вами в ближайшее время!';
 
         return response()->json([
-            'message' => 'Заявка отправлена. Мы свяжемся с вами в ближайшее время!',
+            'message' => $message,
             'preorder_id' => $preorder->id,
         ]);
     }
