@@ -28,33 +28,23 @@ class DatabaseSeeder extends Seeder
             return [$model->slug => $model];
         });
 
-        User::query()->firstOrCreate(
-            ['email' => 'admin@example.com'],
+        User::query()->updateOrCreate(
+            ['email' => 'admin@email.net'],
             [
                 'role_id' => $roles[Role::ADMIN]->id,
-                'name' => 'Admin User',
+                'name' => 'Администратор',
                 'password' => Hash::make('password'),
             ]
         );
 
-        collect([
+        User::query()->updateOrCreate(
+            ['email' => 'user@email.net'],
             [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ],
-            [
-                'name' => 'Student User',
-                'email' => 'student@example.com',
-            ],
-            [
-                'name' => 'Advanced User',
-                'email' => 'advanced@example.com',
-            ],
-        ])->each(function (array $attributes) use ($roles) {
-            User::factory()->create($attributes + [
                 'role_id' => $roles[Role::USER]->id,
-            ]);
-        });
+                'name' => 'Demo User',
+                'password' => Hash::make('password'),
+            ]
+        );
 
         $this->call([
             CourseContentSeeder::class,

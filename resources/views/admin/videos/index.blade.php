@@ -15,6 +15,7 @@
         <tr>
             <th class="px-6 py-3">Название</th>
             <th class="px-6 py-3">Курс</th>
+            <th class="px-6 py-3">Доступ</th>
             <th class="px-6 py-3">Длительность</th>
             <th class="px-6 py-3">Порядок</th>
             <th class="px-6 py-3 text-right">Действия</th>
@@ -28,6 +29,12 @@
                     <div class="text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($video->short_description, 80) }}</div>
                 </td>
                 <td class="px-6 py-4 text-slate-600">{{ $video->course->title ?? '—' }}</td>
+                <td class="px-6 py-4">
+                    @php($isVideoFree = $video->is_free || optional($video->course)->is_free)
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {{ $isVideoFree ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200' }}">
+                        {{ $isVideoFree ? 'Бесплатно' : 'По покупке курса' }}
+                    </span>
+                </td>
                 <td class="px-6 py-4 text-slate-600">{{ $video->duration ? gmdate('i:s', $video->duration) : '—' }}</td>
                 <td class="px-6 py-4 text-slate-600">{{ $video->sort_order }}</td>
                 <td class="px-6 py-4 text-right">
