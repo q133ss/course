@@ -19,7 +19,6 @@
             <h2 id="video-modal-title" class="text-2xl font-semibold text-gray-900"></h2>
             <p id="video-modal-short-description" class="text-sm text-gray-600 hidden"></p>
             <div id="video-modal-player-section" class="video-modal-section hidden space-y-4">
-                <img id="video-modal-preview-image" src="" alt="" class="hidden rounded-xl">
                 <div class="aspect-video bg-black/5 rounded-xl overflow-hidden">
                     <video id="video-modal-video" controls class="w-full h-full bg-black text-white rounded-xl">
                         <source id="video-modal-video-source" src="" type="video/mp4">
@@ -126,7 +125,6 @@
             const videoTitleEl = document.getElementById('video-modal-title');
             const shortDescriptionEl = document.getElementById('video-modal-short-description');
             const fullDescriptionEl = document.getElementById('video-modal-full-description');
-            const previewImageEl = document.getElementById('video-modal-preview-image');
             const playerSection = document.getElementById('video-modal-player-section');
             const playerPreorderCta = document.getElementById('video-modal-player-preorder-cta');
             const playerPreorderCtaStartDateEl = document.getElementById('video-modal-player-preorder-start-date');
@@ -354,14 +352,6 @@
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
                 populateText(fullDescriptionEl, dataset.videoFullDescription);
 
-                if (dataset.videoPreviewImage) {
-                    previewImageEl.src = dataset.videoPreviewImage;
-                    showElement(previewImageEl);
-                } else {
-                    previewImageEl.src = '';
-                    hideElement(previewImageEl);
-                }
-
                 if (dataset.videoUrl) {
                     videoSource?.setAttribute('src', dataset.videoUrl);
                     videoElement?.load();
@@ -411,7 +401,6 @@
                 populateText(videoTitleEl, dataset.videoTitle);
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
                 hideElement(fullDescriptionEl);
-                hideElement(previewImageEl);
                 hideElement(playerPreorderCta);
                 resetVideoPlayer();
 
@@ -440,7 +429,6 @@
                 populateText(videoTitleEl, dataset.videoTitle);
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
                 hideElement(fullDescriptionEl);
-                hideElement(previewImageEl);
                 hideElement(playerPreorderCta);
                 resetVideoPlayer();
 

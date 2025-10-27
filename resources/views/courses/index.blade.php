@@ -143,7 +143,15 @@
                                             </div>
                                         @endif
                                         <div class="relative flex items-start gap-3">
-                                            <div class="mt-1 shrink-0 h-6 w-6 rounded-full border flex items-center justify-center text-xs text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600">▶</div>
+                                            <div class="shrink-0">
+                                                @if ($video->preview_image)
+                                                    <div class="w-24 aspect-video overflow-hidden rounded-lg border border-gray-200 bg-gray-100 transition group-hover:border-blue-200">
+                                                        <img src="{{ $video->preview_image }}" alt="Превью видео «{{ $video->title }}»" class="h-full w-full object-cover">
+                                                    </div>
+                                                @else
+                                                    <div class="mt-1 flex h-6 w-6 items-center justify-center rounded-full border text-xs text-gray-500 transition group-hover:bg-blue-50 group-hover:text-blue-600">▶</div>
+                                                @endif
+                                            </div>
                                             <div class="flex-1">
                                                 <div class="font-medium text-gray-900">{{ $video->title }}</div>
                                                 @if ($video->short_description)
