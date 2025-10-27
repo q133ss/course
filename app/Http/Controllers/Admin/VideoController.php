@@ -85,8 +85,13 @@ class VideoController extends Controller
             'preview_image' => ['nullable', 'string', 'max:255'],
             'duration' => ['nullable', 'integer', 'min:0'],
             'sort_order' => ['nullable', 'integer'],
+            'is_free' => ['nullable', 'boolean'],
         ];
 
-        return $request->validate($rules);
+        $validated = $request->validate($rules);
+
+        $validated['is_free'] = $request->boolean('is_free');
+
+        return $validated;
     }
 }

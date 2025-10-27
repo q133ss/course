@@ -49,8 +49,6 @@
         @forelse ($courses as $course)
             @php
                 $hasPurchase = in_array($course->id, $paidCourseIds, true);
-                $hasAccess = $course->is_free || (auth()->check() && $hasPurchase);
-                $accessMode = $hasAccess ? 'allowed' : (auth()->check() ? 'pay' : 'login');
             @endphp
             <article class="bg-white rounded-2xl shadow p-6 md:p-8">
                 <div class="flex flex-col md:flex-row gap-6">
@@ -74,9 +72,13 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-sm uppercase tracking-wide text-gray-500">Видео уроки</h3>
+                                <h3 class="text-sm uppercase tracking-wide text-gray-500">Видео уроки</h3>
                             <ul class="mt-3 divide-y divide-gray-100">
                                 @foreach ($course->videos as $video)
+                                    @php
+                                        $hasVideoAccess = $course->is_free || $video->is_free || (auth()->check() && $hasPurchase);
+                                        $videoAccessMode = $hasVideoAccess ? 'allowed' : (auth()->check() ? 'pay' : 'login');
+                                    @endphp
                                     <li class="video-item group py-3 cursor-pointer"
                                         data-course-id="{{ $course->id }}"
                                         data-course-title="{{ e($course->title) }}"
@@ -87,13 +89,18 @@
                                         data-video-preview-image="{{ e($video->preview_image ?? '') }}"
                                         data-video-short-description="{{ e($video->short_description ?? '') }}"
                                         data-video-full-description="{{ e($video->full_description ?? '') }}"
-                                        data-access="{{ $accessMode }}">
+                                        data-access="{{ $videoAccessMode }}">
                                         <div class="flex items-start gap-3">
                                             <div class="mt-1 shrink-0 h-6 w-6 rounded-full border flex items-center justify-center text-xs text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600">▶</div>
                                             <div class="flex-1">
                                                 <div class="font-medium text-gray-900">{{ $video->title }}</div>
                                                 @if ($video->short_description)
                                                     <div class="text-sm text-gray-600">{{ $video->short_description }}</div>
+                                                @endif
+                                                @if ($video->is_free && !$course->is_free)
+                                                    <div class="mt-1">
+                                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">Бесплатный урок</span>
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>

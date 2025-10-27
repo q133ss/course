@@ -12,6 +12,22 @@
         <label for="title" class="text-sm font-semibold text-slate-600">Название</label>
         <input id="title" name="title" type="text" value="{{ old('title', $video->title ?? '') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
     </div>
+    <div class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+        <input
+            type="checkbox"
+            id="is_free"
+            name="is_free"
+            value="1"
+            @checked(old('is_free', $video->is_free ?? false))
+            class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+        >
+        <div class="space-y-1">
+            <label for="is_free" class="text-sm font-semibold text-slate-600">Бесплатный урок</label>
+            <p class="text-xs text-slate-500">
+                Отметьте, если видео должно быть доступно всем пользователям, даже если сам курс платный.
+            </p>
+        </div>
+    </div>
     <div class="grid gap-2">
         <label for="short_description" class="text-sm font-semibold text-slate-600">Короткое описание</label>
         <input id="short_description" name="short_description" type="text" value="{{ old('short_description', $video->short_description ?? '') }}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">

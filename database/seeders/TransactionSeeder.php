@@ -15,40 +15,26 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::query()->get();
-        $courses = Course::query()->get();
+        $user = User::query()->where('email', 'user@email.net')->first();
+        $course = Course::query()->where('slug', 'fullstack-start')->first();
 
-        if ($users->isEmpty() || $courses->isEmpty()) {
+        if (!$user || !$course) {
             return;
         }
 
-        $faker = fake();
-        $paidMethods = ['stripe', 'paypal', 'yookassa'];
+        $isCourseFree = (bool) $course->is_free;
 
-        foreach ($users as $user) {
-            $transactionsToCreate = $faker->numberBetween(1, min(3, $courses->count()));
-            $selectedCourses = $courses->shuffle()->take($transactionsToCreate);
-
-            foreach ($selectedCourses as $course) {
-                $isFree = (bool) $course->is_free;
-                $status = $isFree
-                    ? 'paid'
-                    : $faker->randomElement(['paid', 'pending', 'failed']);
-
-                Purchase::query()->updateOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'course_id' => $course->id,
-                    ],
-                    [
-                        'amount' => $isFree ? 0 : ($course->price ?? $faker->randomFloat(2, 10, 150)),
-                        'payment_status' => $status,
-                        'payment_method' => $isFree ? 'free' : $faker->randomElement($paidMethods),
-                        'purchased_at' => Carbon::now()->subDays($faker->numberBetween(1, 30))
-                            ->setTimeFromTimeString($faker->time('H:i:s')),
-                    ]
-                );
-            }
-        }
+        Purchase::query()->updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'course_id' => $course->id,
+            ],
+            [
+                'amount' => $isCourseFree ? 0 : ($course->price ?? 0),
+                'payment_status' => 'paid',
+                'payment_method' => $isCourseFree ? 'free' : 'manual',
+                'purchased_at' => Carbon::now()->subDays(3)->setTime(10, 15),
+            ]
+        );
     }
 }

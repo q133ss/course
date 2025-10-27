@@ -23,6 +23,7 @@ class Video extends Model
         'preview_image',
         'duration',
         'sort_order',
+        'is_free',
     ];
 
     /**
@@ -31,6 +32,7 @@ class Video extends Model
     protected $casts = [
         'duration' => 'integer',
         'sort_order' => 'integer',
+        'is_free' => 'boolean',
     ];
 
     public function course(): BelongsTo
