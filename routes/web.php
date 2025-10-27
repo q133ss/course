@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+use App\Http\Controllers\Admin\CoursePreorderController as AdminCoursePreorderController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TransactionController;
@@ -44,6 +45,7 @@ Route::prefix('admin')
 
         Route::resource('users', UserController::class)->except('show');
         Route::resource('courses', AdminCourseController::class)->except('show');
+        Route::get('preorders', [AdminCoursePreorderController::class, 'index'])->name('preorders.index');
         Route::resource('videos', AdminVideoController::class)->except('show');
         Route::resource('roles', RoleController::class)->except('show');
 

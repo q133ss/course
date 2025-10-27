@@ -102,10 +102,14 @@
                                     @php
                                         $hasVideoAccess = $course->is_free || $video->is_free || (auth()->check() && $hasPurchase);
                                         $videoAccessMode = $hasVideoAccess ? 'allowed' : (auth()->check() ? 'pay' : 'login');
+                                        $shouldShowPreorderCta = false;
 
                                         if ($courseIsUpcoming) {
-                                            $hasVideoAccess = false;
-                                            $videoAccessMode = 'preorder';
+                                            $shouldShowPreorderCta = $video->is_free && $hasVideoAccess;
+
+                                            if (! $shouldShowPreorderCta) {
+                                                $videoAccessMode = 'preorder';
+                                            }
                                         }
                                     @endphp
                                     <li @class([
@@ -126,6 +130,7 @@
                                         data-course-start-date-readable="{{ e($courseStartDateFormatted ?? '') }}"
                                         data-course-start-date-diff="{{ e($courseStartDateDiff ?? '') }}"
                                         data-course-start-date-short="{{ e($courseStartDateShort ?? '') }}"
+                                        data-preorder-cta="{{ $shouldShowPreorderCta ? 'true' : 'false' }}"
                                         data-access="{{ $videoAccessMode }}">
                                         @if ($courseIsUpcoming)
                                             <div class="pointer-events-none absolute inset-0 rounded-xl bg-white/70 backdrop-blur-[1px] ring-1 ring-blue-100"></div>

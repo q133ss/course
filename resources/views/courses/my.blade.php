@@ -264,16 +264,25 @@
                                                 $videoProgressPercent = $progressRecord?->progress_percent ?? 0;
                                                 $videoProgressPercent = max(0, min(100, (int) $videoProgressPercent));
                                                 $videoCompleted = $videoProgressPercent >= 90;
-                                                $durationSeconds = $video->duration ?? 0;
-                                                $durationMinutes = $durationSeconds > 0 ? intdiv($durationSeconds, 60) : 0;
-                                                $durationSecondsRemainder = $durationSeconds > 0 ? $durationSeconds % 60 : 0;
+                                            $durationSeconds = $video->duration ?? 0;
+                                            $durationMinutes = $durationSeconds > 0 ? intdiv($durationSeconds, 60) : 0;
+                                            $durationSecondsRemainder = $durationSeconds > 0 ? $durationSeconds % 60 : 0;
                                             $durationFormatted = $durationSeconds > 0
                                                 ? ($durationMinutes > 0
                                                     ? sprintf('%d мин %02d с', $durationMinutes, $durationSecondsRemainder)
                                                     : sprintf('%d с', $durationSecondsRemainder))
                                                 : null;
                                             $videoElementId = 'course-' . $course->id . '-video-' . $video->id;
-                                            $videoAccessMode = $courseIsUpcoming ? 'preorder' : 'allowed';
+                                            $videoAccessMode = 'allowed';
+                                            $shouldShowPreorderCta = false;
+
+                                            if ($courseIsUpcoming) {
+                                                $shouldShowPreorderCta = $video->is_free;
+
+                                                if (! $shouldShowPreorderCta) {
+                                                    $videoAccessMode = 'preorder';
+                                                }
+                                            }
                                         @endphp
                                             <li id="{{ $videoElementId }}"
                                                 @class([
@@ -293,6 +302,7 @@
                                                 data-course-start-date-readable="{{ e($courseStartDateFormatted ?? '') }}"
                                                 data-course-start-date-diff="{{ e($courseStartDateDiff ?? '') }}"
                                                 data-course-start-date-short="{{ e($courseStartDateShort ?? '') }}"
+                                                data-preorder-cta="{{ $shouldShowPreorderCta ? 'true' : 'false' }}"
                                                 data-access="{{ $videoAccessMode }}">
                                                 @if ($courseIsUpcoming)
                                                     <div class="pointer-events-none absolute inset-0 rounded-2xl bg-white/70 backdrop-blur-[1px] ring-1 ring-blue-100"></div>

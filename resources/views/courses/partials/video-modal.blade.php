@@ -26,6 +26,33 @@
                         Ваш браузер не поддерживает воспроизведение видео.
                     </video>
                 </div>
+                <div
+                    id="video-modal-player-preorder-cta"
+                    class="hidden rounded-xl border border-blue-100 bg-blue-50/70 p-4"
+                >
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="space-y-1 text-sm text-blue-900">
+                            <div>
+                                Курс стартует
+                                <span id="video-modal-player-preorder-start-date" class="font-semibold"></span>
+                                <span id="video-modal-player-preorder-start-diff" class="font-semibold text-blue-700"></span>
+                            </div>
+                            <div class="text-xs text-blue-800">
+                                Оставьте заявку заранее и получите
+                                <span id="video-modal-player-preorder-discount" class="font-semibold"></span>% скидки в день запуска.
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button
+                                type="button"
+                                id="video-modal-player-preorder-button"
+                                class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                            >
+                                Оставить бесплатную заявку на предзаказ
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div id="video-modal-full-description" class="text-sm text-gray-700 whitespace-pre-line hidden"></div>
             </div>
             <div id="video-modal-pay-section" class="video-modal-section hidden bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-3">
@@ -101,6 +128,11 @@
             const fullDescriptionEl = document.getElementById('video-modal-full-description');
             const previewImageEl = document.getElementById('video-modal-preview-image');
             const playerSection = document.getElementById('video-modal-player-section');
+            const playerPreorderCta = document.getElementById('video-modal-player-preorder-cta');
+            const playerPreorderCtaStartDateEl = document.getElementById('video-modal-player-preorder-start-date');
+            const playerPreorderCtaStartDiffEl = document.getElementById('video-modal-player-preorder-start-diff');
+            const playerPreorderCtaDiscountEl = document.getElementById('video-modal-player-preorder-discount');
+            const playerPreorderCtaButton = document.getElementById('video-modal-player-preorder-button');
             const paySection = document.getElementById('video-modal-pay-section');
             const payCourseTitleEl = document.getElementById('video-modal-pay-course-title');
             const payLinkEl = document.getElementById('video-modal-pay-link');
@@ -124,6 +156,7 @@
             const authenticatedName = videoModal?.dataset.authName || '';
             const preorderDiscountValue = videoModal?.dataset.preorderDiscount || '30';
             let activePreorderUrl = null;
+            let activeItem = null;
 
             if (!videoModal) {
                 return;
@@ -150,6 +183,11 @@
                 videoElement.removeAttribute('src');
                 videoSource?.removeAttribute('src');
                 videoElement.load();
+                hideElement(playerPreorderCta);
+                if (playerPreorderCtaButton) {
+                    playerPreorderCtaButton.dataset.preorderUrl = '';
+                    playerPreorderCtaButton.setAttribute('disabled', 'disabled');
+                }
             };
 
             const openVideoModal = () => {
@@ -164,6 +202,7 @@
                 body.classList.remove('overflow-hidden');
                 resetVideoPlayer();
                 resetPreorderForm();
+                activeItem = null;
             };
 
             const populateText = (element, value) => {
@@ -225,6 +264,43 @@
                     videoSource?.setAttribute('src', dataset.videoUrl);
                     videoElement?.load();
                 }
+
+                activePreorderUrl = null;
+
+                if (playerPreorderCta) {
+                    const shouldShowPreorderCta = dataset.preorderCta === 'true' && dataset.preorderUrl;
+
+                    if (shouldShowPreorderCta) {
+                        populateText(playerPreorderCtaStartDateEl, dataset.courseStartDateReadable);
+
+                        if (playerPreorderCtaStartDiffEl) {
+                            if (dataset.courseStartDateDiff) {
+                                playerPreorderCtaStartDiffEl.textContent = ` · через ${dataset.courseStartDateDiff}`;
+                                showElement(playerPreorderCtaStartDiffEl);
+                            } else {
+                                playerPreorderCtaStartDiffEl.textContent = '';
+                                hideElement(playerPreorderCtaStartDiffEl);
+                            }
+                        }
+
+                        if (playerPreorderCtaDiscountEl) {
+                            playerPreorderCtaDiscountEl.textContent = preorderDiscountValue;
+                        }
+
+                        if (playerPreorderCtaButton) {
+                            playerPreorderCtaButton.dataset.preorderUrl = dataset.preorderUrl;
+                            playerPreorderCtaButton.removeAttribute('disabled');
+                        }
+
+                        showElement(playerPreorderCta);
+                    } else {
+                        hideElement(playerPreorderCta);
+                        if (playerPreorderCtaButton) {
+                            playerPreorderCtaButton.dataset.preorderUrl = '';
+                            playerPreorderCtaButton.setAttribute('disabled', 'disabled');
+                        }
+                    }
+                }
             };
 
             const populatePayContent = (item) => {
@@ -234,6 +310,7 @@
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
                 hideElement(fullDescriptionEl);
                 hideElement(previewImageEl);
+                hideElement(playerPreorderCta);
                 resetVideoPlayer();
 
                 populateText(payCourseTitleEl, dataset.courseTitle);
@@ -252,6 +329,7 @@
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
                 hideElement(fullDescriptionEl);
                 hideElement(previewImageEl);
+                hideElement(playerPreorderCta);
                 resetVideoPlayer();
 
                 populateText(preorderCourseTitleEl, dataset.courseTitle);
@@ -318,6 +396,7 @@
             videoItems.forEach((item) => {
                 item.addEventListener('click', () => {
                     const access = item.dataset.access;
+                    activeItem = item;
 
                     if (access === 'login') {
                         window.openAuthModal?.('login');
@@ -348,6 +427,19 @@
                     populateVideoContent(item);
                     openVideoModal();
                 });
+            });
+
+            playerPreorderCtaButton?.addEventListener('click', (event) => {
+                event.preventDefault();
+
+                if (!activeItem) {
+                    return;
+                }
+
+                hideElement(playerSection);
+                hideElement(paySection);
+                populatePreorderContent(activeItem);
+                showElement(preorderSection);
             });
 
             preorderForm?.addEventListener('submit', async (event) => {
