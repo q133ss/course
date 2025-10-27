@@ -85,6 +85,7 @@ class CourseController extends Controller
             'price' => ['nullable', 'numeric', 'min:0'],
             'is_free' => ['nullable', 'boolean'],
             'thumbnail' => ['nullable', 'string', 'max:255'],
+            'start_date' => ['nullable', 'date'],
         ];
 
         if ($ignoreId) {
@@ -97,6 +98,7 @@ class CourseController extends Controller
 
         $data['is_free'] = $request->boolean('is_free');
         $data['price'] = $data['is_free'] ? 0 : ($data['price'] ?? 0);
+        $data['start_date'] = $data['start_date'] ?? null;
 
         return $data;
     }

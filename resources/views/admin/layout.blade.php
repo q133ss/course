@@ -18,6 +18,7 @@
                 ['label' => 'Обзор', 'route' => 'admin.dashboard'],
                 ['label' => 'Пользователи', 'route' => 'admin.users.index', 'pattern' => 'admin.users.*'],
                 ['label' => 'Курсы', 'route' => 'admin.courses.index', 'pattern' => 'admin.courses.*'],
+                ['label' => 'Предзаказы', 'route' => 'admin.preorders.index', 'pattern' => 'admin.preorders.*'],
                 ['label' => 'Видео', 'route' => 'admin.videos.index', 'pattern' => 'admin.videos.*'],
                 ['label' => 'Роли', 'route' => 'admin.roles.index', 'pattern' => 'admin.roles.*'],
                 ['label' => 'Транзакции', 'route' => 'admin.transactions.index'],

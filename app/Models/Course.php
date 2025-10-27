@@ -21,6 +21,7 @@ class Course extends Model
         'description',
         'price',
         'is_free',
+        'start_date',
         'thumbnail',
     ];
 
@@ -30,6 +31,7 @@ class Course extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'is_free' => 'boolean',
+        'start_date' => 'datetime',
     ];
 
     public function videos(): HasMany
@@ -40,6 +42,25 @@ class Course extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(Purchase::class);
+    }
+
+    public function preorders(): HasMany
+    {
+        return $this->hasMany(CoursePreorder::class);
+    }
+
+    public function hasStarted(): bool
+    {
+        if ($this->start_date === null) {
+            return true;
+        }
+
+        return $this->start_date->lte(now());
+    }
+
+    public function isUpcoming(): bool
+    {
+        return ! $this->hasStarted();
     }
 
     /**

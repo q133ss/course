@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+use App\Http\Controllers\Admin\CoursePreorderController as AdminCoursePreorderController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TransactionController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CoursePreorderController;
 use App\Http\Controllers\MyCoursesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +22,7 @@ Route::get('/', function () {
 
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/checkout/{course}', [CheckoutController::class, 'show'])->name('checkout.show');
+Route::post('/courses/{course}/preorders', [CoursePreorderController::class, 'store'])->name('courses.preorders.store');
 
 Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
@@ -42,6 +45,7 @@ Route::prefix('admin')
 
         Route::resource('users', UserController::class)->except('show');
         Route::resource('courses', AdminCourseController::class)->except('show');
+        Route::get('preorders', [AdminCoursePreorderController::class, 'index'])->name('preorders.index');
         Route::resource('videos', AdminVideoController::class)->except('show');
         Route::resource('roles', RoleController::class)->except('show');
 
