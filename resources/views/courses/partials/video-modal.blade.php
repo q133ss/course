@@ -157,6 +157,63 @@
             const preorderDiscountValue = videoModal?.dataset.preorderDiscount || '30';
             let activePreorderUrl = null;
             let activeItem = null;
+            let activeCourseId = null;
+            let activePreorderId = null;
+
+            const storage = (() => {
+                try {
+                    const testKey = '__video_modal_preorder_test__';
+                    window.localStorage.setItem(testKey, '1');
+                    window.localStorage.removeItem(testKey);
+
+                    return window.localStorage;
+                } catch (error) {
+                    return null;
+                }
+            })();
+
+            const storageKeyForCourse = (courseId) => {
+                if (!courseId) {
+                    return null;
+                }
+
+                return `course-preorder:${courseId}`;
+            };
+
+            const loadStoredPreorder = (courseId) => {
+                const key = storageKeyForCourse(courseId);
+
+                if (!storage || !key) {
+                    return null;
+                }
+
+                try {
+                    const raw = storage.getItem(key);
+
+                    if (!raw) {
+                        return null;
+                    }
+
+                    return JSON.parse(raw);
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const saveStoredPreorder = (courseId, data) => {
+                const key = storageKeyForCourse(courseId);
+
+                if (!storage || !key) {
+                    return;
+                }
+
+                try {
+                    const existing = loadStoredPreorder(courseId) || {};
+                    storage.setItem(key, JSON.stringify({ ...existing, ...data }));
+                } catch (error) {
+                    // Игнорируем ошибки записи в localStorage.
+                }
+            };
 
             if (!videoModal) {
                 return;
@@ -229,6 +286,8 @@
 
             const resetPreorderForm = () => {
                 activePreorderUrl = null;
+                activeCourseId = null;
+                activePreorderId = null;
                 if (preorderForm) {
                     preorderForm.reset();
                 }
@@ -242,6 +301,49 @@
                     preorderSubmitButton.classList.remove('opacity-70', 'cursor-wait');
                 }
                 hideElement(preorderSection);
+            };
+
+            const showPreorderThankYou = (message) => {
+                if (!message) {
+                    return;
+                }
+
+                let banner = document.getElementById('video-modal-preorder-thanks');
+                let messageElement;
+
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = 'video-modal-preorder-thanks';
+                    banner.className = 'fixed inset-x-0 top-4 z-50 flex justify-center px-4';
+
+                    messageElement = document.createElement('div');
+                    messageElement.className = 'max-w-md w-full rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-lg px-4 py-3 text-center';
+                    messageElement.setAttribute('role', 'status');
+
+                    banner.appendChild(messageElement);
+                    document.body.appendChild(banner);
+                } else {
+                    messageElement = banner.firstElementChild;
+                }
+
+                if (messageElement) {
+                    messageElement.textContent = message;
+                }
+
+                banner.classList.remove('hidden');
+                banner.style.display = 'flex';
+
+                const previousTimeoutId = banner.dataset.hideTimeoutId;
+
+                if (previousTimeoutId) {
+                    window.clearTimeout(Number(previousTimeoutId));
+                }
+
+                const timeoutId = window.setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 4000);
+
+                banner.dataset.hideTimeoutId = String(timeoutId);
             };
 
             const populateVideoContent = (item) => {
@@ -324,6 +426,16 @@
 
                 resetPreorderForm();
 
+                activeCourseId = dataset.courseId || null;
+                const storedPreorder = loadStoredPreorder(activeCourseId);
+                activePreorderId = storedPreorder?.preorderId || null;
+
+                if (storedPreorder?.submitted) {
+                    setStatusMessage(preorderSuccessEl, 'Вы уже отправили заявку на этот курс.');
+                } else {
+                    setStatusMessage(preorderSuccessEl, '');
+                }
+
                 populateText(courseTitleEl, dataset.courseTitle);
                 populateText(videoTitleEl, dataset.videoTitle);
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
@@ -359,14 +471,14 @@
                     } else {
                         preorderNameField.classList.remove('hidden');
                         if (preorderNameInput) {
-                            preorderNameInput.value = '';
+                            preorderNameInput.value = storedPreorder?.name || '';
                             preorderNameInput.setAttribute('required', 'required');
                         }
                     }
                 }
 
                 if (preorderContactInput) {
-                    preorderContactInput.value = '';
+                    preorderContactInput.value = storedPreorder?.contact || '';
                 }
 
                 activePreorderUrl = dataset.preorderUrl || null;
@@ -483,6 +595,7 @@
                         body: JSON.stringify({
                             contact: contactValue,
                             name: isAuthenticated ? undefined : nameValue,
+                            preorder_id: activePreorderId || undefined,
                         }),
                     });
 
@@ -496,11 +609,20 @@
                         setStatusMessage(preorderSuccessEl, '');
                     } else {
                         const message = data?.message || 'Заявка отправлена!';
-                        setStatusMessage(preorderSuccessEl, message);
-                        setStatusMessage(preorderErrorEl, '');
-                        if (preorderContactInput) {
-                            preorderContactInput.value = contactValue;
+                        const preorderIdFromServer = data?.preorder_id ? Number(data.preorder_id) : null;
+                        if (preorderIdFromServer) {
+                            activePreorderId = preorderIdFromServer;
                         }
+                        if (activeCourseId) {
+                            saveStoredPreorder(activeCourseId, {
+                                contact: contactValue,
+                                name: isAuthenticated ? authenticatedName : nameValue,
+                                preorderId: activePreorderId,
+                                submitted: true,
+                            });
+                        }
+                        closeVideoModal();
+                        showPreorderThankYou(message);
                     }
                 } catch (error) {
                     setStatusMessage(preorderErrorEl, 'Не удалось отправить заявку. Проверьте подключение и попробуйте снова.');
