@@ -38,12 +38,39 @@
     </div>
     <div class="grid gap-4 sm:grid-cols-2">
         <div class="grid gap-2">
-            <label for="video_url" class="text-sm font-semibold text-slate-600">URL видео</label>
-            <input id="video_url" name="video_url" type="text" value="{{ old('video_url', $video->video_url ?? '') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+            <label for="video_file" class="text-sm font-semibold text-slate-600">Файл видео</label>
+            <input
+                id="video_file"
+                name="video_file"
+                type="file"
+                accept="video/*"
+                @if(!$isEdit) required @endif
+                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            >
+            <p class="text-xs text-slate-500">Загрузите файл урока в формате MP4, MOV, AVI, MKV или WEBM.</p>
+            @if($isEdit && $video->video_url)
+                <p class="text-xs text-slate-500">
+                    Текущее видео:
+                    <a href="{{ $video->video_url }}" target="_blank" rel="noopener" class="font-semibold text-blue-600 hover:underline">Скачать</a>
+                </p>
+            @endif
         </div>
         <div class="grid gap-2">
-            <label for="preview_image" class="text-sm font-semibold text-slate-600">URL превью</label>
-            <input id="preview_image" name="preview_image" type="text" value="{{ old('preview_image', $video->preview_image ?? '') }}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+            <label for="preview_image_file" class="text-sm font-semibold text-slate-600">Изображение превью</label>
+            <input
+                id="preview_image_file"
+                name="preview_image_file"
+                type="file"
+                accept="image/*"
+                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            >
+            <p class="text-xs text-slate-500">Необязательно. Добавьте изображение, которое будет показываться перед началом видео.</p>
+            @if($isEdit && $video->preview_image)
+                <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
+                    <img src="{{ $video->preview_image }}" alt="Текущее превью" class="h-16 w-16 rounded-lg object-cover">
+                    <a href="{{ $video->preview_image }}" target="_blank" rel="noopener" class="text-xs font-semibold text-blue-600 hover:underline">Открыть изображение</a>
+                </div>
+            @endif
         </div>
     </div>
     <div class="grid gap-4 sm:grid-cols-2">

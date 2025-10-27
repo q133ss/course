@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-semibold text-slate-800">Новое видео</h1>
     <p class="text-sm text-slate-500">Добавьте урок к выбранному курсу.</p>
 
-    <form method="POST" action="{{ route('admin.videos.store') }}" class="mt-6 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="POST" action="{{ route('admin.videos.store') }}" enctype="multipart/form-data" class="mt-6 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         @csrf
         @include('admin.videos._form')
         <div class="flex items-center justify-end gap-3">
