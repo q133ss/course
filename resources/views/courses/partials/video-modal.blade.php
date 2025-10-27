@@ -157,6 +157,61 @@
             const preorderDiscountValue = videoModal?.dataset.preorderDiscount || '30';
             let activePreorderUrl = null;
             let activeItem = null;
+            let activeCourseId = null;
+
+            const storage = (() => {
+                try {
+                    const testKey = '__video_modal_preorder_test__';
+                    window.localStorage.setItem(testKey, '1');
+                    window.localStorage.removeItem(testKey);
+
+                    return window.localStorage;
+                } catch (error) {
+                    return null;
+                }
+            })();
+
+            const storageKeyForCourse = (courseId) => {
+                if (!courseId) {
+                    return null;
+                }
+
+                return `course-preorder:${courseId}`;
+            };
+
+            const loadStoredPreorder = (courseId) => {
+                const key = storageKeyForCourse(courseId);
+
+                if (!storage || !key) {
+                    return null;
+                }
+
+                try {
+                    const raw = storage.getItem(key);
+
+                    if (!raw) {
+                        return null;
+                    }
+
+                    return JSON.parse(raw);
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const saveStoredPreorder = (courseId, data) => {
+                const key = storageKeyForCourse(courseId);
+
+                if (!storage || !key) {
+                    return;
+                }
+
+                try {
+                    storage.setItem(key, JSON.stringify(data));
+                } catch (error) {
+                    // Игнорируем ошибки записи в localStorage.
+                }
+            };
 
             if (!videoModal) {
                 return;
@@ -229,6 +284,7 @@
 
             const resetPreorderForm = () => {
                 activePreorderUrl = null;
+                activeCourseId = null;
                 if (preorderForm) {
                     preorderForm.reset();
                 }
@@ -367,6 +423,9 @@
 
                 resetPreorderForm();
 
+                activeCourseId = dataset.courseId || null;
+                const storedPreorder = loadStoredPreorder(activeCourseId);
+
                 populateText(courseTitleEl, dataset.courseTitle);
                 populateText(videoTitleEl, dataset.videoTitle);
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
@@ -402,14 +461,14 @@
                     } else {
                         preorderNameField.classList.remove('hidden');
                         if (preorderNameInput) {
-                            preorderNameInput.value = '';
+                            preorderNameInput.value = storedPreorder?.name || '';
                             preorderNameInput.setAttribute('required', 'required');
                         }
                     }
                 }
 
                 if (preorderContactInput) {
-                    preorderContactInput.value = '';
+                    preorderContactInput.value = storedPreorder?.contact || '';
                 }
 
                 activePreorderUrl = dataset.preorderUrl || null;
@@ -539,6 +598,12 @@
                         setStatusMessage(preorderSuccessEl, '');
                     } else {
                         const message = data?.message || 'Заявка отправлена!';
+                        if (activeCourseId) {
+                            saveStoredPreorder(activeCourseId, {
+                                contact: contactValue,
+                                name: isAuthenticated ? authenticatedName : nameValue,
+                            });
+                        }
                         closeVideoModal();
                         showPreorderThankYou(message);
                     }
