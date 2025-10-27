@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VideoController as AdminVideoController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CheckoutController;
@@ -27,3 +33,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:admin'])
+    ->group(function () {
+        Route::get('/', AdminDashboardController::class)->name('dashboard');
+
+        Route::resource('users', UserController::class)->except('show');
+        Route::resource('courses', AdminCourseController::class)->except('show');
+        Route::resource('videos', AdminVideoController::class)->except('show');
+        Route::resource('roles', RoleController::class)->except('show');
+
+        Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    });
