@@ -50,6 +50,15 @@
                             'requiresAuth' => true,
                         ],
                     ];
+
+                    if (auth()->check() && auth()->user()->isAdmin()) {
+                        $navItems[] = [
+                            'label' => 'Админ-панель',
+                            'href' => route('admin.dashboard'),
+                            'active' => request()->routeIs('admin.*'),
+                            'requiresAuth' => true,
+                        ];
+                    }
                 @endphp
                 <nav class="hidden md:flex items-center gap-1 text-sm flex-wrap justify-end" data-desktop-nav>
                     @foreach ($navItems as $item)
