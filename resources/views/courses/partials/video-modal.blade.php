@@ -158,6 +158,7 @@
             let activePreorderUrl = null;
             let activeItem = null;
             let activeCourseId = null;
+            let activePreorderId = null;
 
             const storage = (() => {
                 try {
@@ -207,7 +208,8 @@
                 }
 
                 try {
-                    storage.setItem(key, JSON.stringify(data));
+                    const existing = loadStoredPreorder(courseId) || {};
+                    storage.setItem(key, JSON.stringify({ ...existing, ...data }));
                 } catch (error) {
                     // Игнорируем ошибки записи в localStorage.
                 }
@@ -285,6 +287,7 @@
             const resetPreorderForm = () => {
                 activePreorderUrl = null;
                 activeCourseId = null;
+                activePreorderId = null;
                 if (preorderForm) {
                     preorderForm.reset();
                 }
@@ -425,6 +428,13 @@
 
                 activeCourseId = dataset.courseId || null;
                 const storedPreorder = loadStoredPreorder(activeCourseId);
+                activePreorderId = storedPreorder?.preorderId || null;
+
+                if (storedPreorder?.submitted) {
+                    setStatusMessage(preorderSuccessEl, 'Вы уже отправили заявку на этот курс.');
+                } else {
+                    setStatusMessage(preorderSuccessEl, '');
+                }
 
                 populateText(courseTitleEl, dataset.courseTitle);
                 populateText(videoTitleEl, dataset.videoTitle);
@@ -585,6 +595,7 @@
                         body: JSON.stringify({
                             contact: contactValue,
                             name: isAuthenticated ? undefined : nameValue,
+                            preorder_id: activePreorderId || undefined,
                         }),
                     });
 
@@ -598,10 +609,16 @@
                         setStatusMessage(preorderSuccessEl, '');
                     } else {
                         const message = data?.message || 'Заявка отправлена!';
+                        const preorderIdFromServer = data?.preorder_id ? Number(data.preorder_id) : null;
+                        if (preorderIdFromServer) {
+                            activePreorderId = preorderIdFromServer;
+                        }
                         if (activeCourseId) {
                             saveStoredPreorder(activeCourseId, {
                                 contact: contactValue,
                                 name: isAuthenticated ? authenticatedName : nameValue,
+                                preorderId: activePreorderId,
+                                submitted: true,
                             });
                         }
                         closeVideoModal();

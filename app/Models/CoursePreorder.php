@@ -18,6 +18,7 @@ class CoursePreorder extends Model
         'user_id',
         'name',
         'contact',
+        'ip_address',
     ];
 
     public function course(): BelongsTo

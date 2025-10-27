@@ -20,12 +20,17 @@ class CoursePreorderController extends Controller
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'contact' => ['required', 'string', 'max:255'],
+            'preorder_id' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $user = $request->user();
+        $ipAddress = (string) $request->ip();
 
         $contact = trim((string) $validated['contact']);
         $name = array_key_exists('name', $validated) ? trim((string) $validated['name']) : null;
+        $requestedPreorderId = array_key_exists('preorder_id', $validated)
+            ? (int) $validated['preorder_id']
+            : null;
 
         if ($name === '') {
             $name = null;
@@ -33,6 +38,24 @@ class CoursePreorderController extends Controller
 
         if ($user) {
             $name = $name ?: $user->name;
+        }
+
+        $preorder = null;
+
+        if ($requestedPreorderId) {
+            $preorder = CoursePreorder::query()
+                ->where('course_id', $course->id)
+                ->where('id', $requestedPreorderId)
+                ->first();
+
+            if ($preorder) {
+                $belongsToUser = $user && $preorder->user_id === $user->id;
+                $ipMatches = $ipAddress === '' || $preorder->ip_address === null || $preorder->ip_address === $ipAddress;
+
+                if (! $belongsToUser && ! $ipMatches) {
+                    $preorder = null;
+                }
+            }
         }
 
         if ($user) {
@@ -48,7 +71,9 @@ class CoursePreorderController extends Controller
                     ->whereNull('user_id')
                     ->first();
             }
-        } else {
+        }
+
+        if (! $preorder && $contact !== '') {
             $preorder = CoursePreorder::query()
                 ->where('course_id', $course->id)
                 ->where('contact', $contact)
@@ -78,8 +103,28 @@ class CoursePreorderController extends Controller
             ], 422);
         }
 
+        $ipIsTaken = $ipAddress === ''
+            ? false
+            : CoursePreorder::query()
+                ->where('course_id', $course->id)
+                ->where('ip_address', $ipAddress)
+                ->when($preorder->exists, fn ($query) => $query->where('id', '!=', $preorder->id))
+                ->exists();
+
+        if ($ipIsTaken) {
+            $message = 'Вы уже отправили заявку на этот курс.';
+
+            return response()->json([
+                'message' => $message,
+                'errors' => [
+                    'ip_address' => [$message],
+                ],
+            ], 422);
+        }
+
         $preorder->contact = $contact;
         $preorder->name = $name;
+        $preorder->ip_address = $ipAddress !== '' ? $ipAddress : null;
 
         if ($user) {
             $preorder->user_id = $user->id;

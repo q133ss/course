@@ -12,7 +12,7 @@ class CoursePreorderTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guest_creates_single_preorder_and_subsequent_request_updates_it(): void
+    public function test_guest_creates_single_preorder_and_subsequent_request_updates_it_using_ip(): void
     {
         $course = Course::factory()->upcoming()->create();
 
@@ -21,7 +21,9 @@ class CoursePreorderTest extends TestCase
             'contact' => '@ivanov',
         ];
 
-        $firstResponse = $this->postJson(route('courses.preorders.store', $course), $payload);
+        $firstResponse = $this
+            ->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->postJson(route('courses.preorders.store', $course), $payload);
 
         $firstResponse
             ->assertOk()
@@ -29,22 +31,39 @@ class CoursePreorderTest extends TestCase
                 'message' => 'Заявка отправлена. Мы свяжемся с вами в ближайшее время!',
             ]);
 
+        $preorderId = $firstResponse->json('preorder_id');
+        $this->assertNotNull($preorderId);
+
         $this->assertDatabaseHas('course_preorders', [
             'course_id' => $course->id,
             'contact' => '@ivanov',
             'name' => 'Иван',
             'user_id' => null,
+            'ip_address' => '203.0.113.10',
         ]);
 
-        $secondResponse = $this->postJson(route('courses.preorders.store', $course), $payload);
+        $secondResponse = $this
+            ->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->postJson(route('courses.preorders.store', $course), [
+                'name' => 'Иван',
+                'contact' => '@ivanov-updated',
+                'preorder_id' => $preorderId,
+            ]);
 
         $secondResponse
             ->assertOk()
             ->assertJsonFragment([
                 'message' => 'Данные заявки обновлены. Мы свяжемся с вами в ближайшее время!',
+                'preorder_id' => $preorderId,
             ]);
 
         $this->assertSame(1, CoursePreorder::query()->where('course_id', $course->id)->count());
+
+        $this->assertDatabaseHas('course_preorders', [
+            'course_id' => $course->id,
+            'contact' => '@ivanov-updated',
+            'ip_address' => '203.0.113.10',
+        ]);
     }
 
     public function test_authenticated_user_can_only_have_one_preorder_per_course(): void
@@ -68,6 +87,7 @@ class CoursePreorderTest extends TestCase
             'course_id' => $course->id,
             'user_id' => $user->id,
             'contact' => '@firstcontact',
+            'ip_address' => '127.0.0.1',
         ]);
 
         $secondResponse = $this
@@ -91,6 +111,38 @@ class CoursePreorderTest extends TestCase
             'course_id' => $course->id,
             'user_id' => $user->id,
             'contact' => '@updatedcontact',
+            'ip_address' => '127.0.0.1',
+        ]);
+    }
+
+    public function test_second_guest_from_same_ip_receives_error(): void
+    {
+        $course = Course::factory()->upcoming()->create();
+
+        $this
+            ->withServerVariables(['REMOTE_ADDR' => '198.51.100.5'])
+            ->postJson(route('courses.preorders.store', $course), [
+                'name' => 'Алексей',
+                'contact' => '@alex',
+            ])
+            ->assertOk();
+
+        $this
+            ->withServerVariables(['REMOTE_ADDR' => '198.51.100.5'])
+            ->postJson(route('courses.preorders.store', $course), [
+                'name' => 'Мария',
+                'contact' => '@maria',
+            ])
+            ->assertStatus(422)
+            ->assertJsonFragment([
+                'message' => 'Вы уже отправили заявку на этот курс.',
+            ])
+            ->assertJsonValidationErrors(['ip_address']);
+
+        $this->assertDatabaseHas('course_preorders', [
+            'course_id' => $course->id,
+            'contact' => '@alex',
+            'ip_address' => '198.51.100.5',
         ]);
     }
 
