@@ -16,6 +16,7 @@
             <th class="px-6 py-3">Название</th>
             <th class="px-6 py-3">Slug</th>
             <th class="px-6 py-3">Цена</th>
+            <th class="px-6 py-3">Старт</th>
             <th class="px-6 py-3">Видео</th>
             <th class="px-6 py-3 text-right">Действия</th>
         </tr>
@@ -33,6 +34,18 @@
                         <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Бесплатно</span>
                     @else
                         <span class="text-sm font-semibold text-slate-800">₽{{ number_format($course->price, 2, ',', ' ') }}</span>
+                    @endif
+                </td>
+                <td class="px-6 py-4">
+                    @if ($course->start_date)
+                        <div class="text-sm font-medium text-slate-700">{{ $course->start_date->format('d.m.Y H:i') }}</div>
+                        @if ($course->isUpcoming())
+                            <div class="text-xs font-semibold text-blue-600">Старт через {{ $course->start_date->diffForHumans(null, true) }}</div>
+                        @else
+                            <div class="text-xs text-emerald-600">Уже в доступе</div>
+                        @endif
+                    @else
+                        <span class="text-xs text-slate-500">Доступен сразу</span>
                     @endif
                 </td>
                 <td class="px-6 py-4 text-slate-600">{{ $course->videos_count }}</td>

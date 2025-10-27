@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CoursePreorderController;
 use App\Http\Controllers\MyCoursesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ Route::get('/', function () {
 
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/checkout/{course}', [CheckoutController::class, 'show'])->name('checkout.show');
+Route::post('/courses/{course}/preorders', [CoursePreorderController::class, 'store'])->name('courses.preorders.store');
 
 Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
