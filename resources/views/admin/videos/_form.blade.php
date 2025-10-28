@@ -35,6 +35,12 @@
     <div class="grid gap-2">
         <label for="full_description" class="text-sm font-semibold text-slate-600">Полное описание</label>
         <textarea id="full_description" name="full_description" rows="5" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">{{ old('full_description', $video->full_description ?? '') }}</textarea>
+        <p class="text-xs text-slate-500">
+            Для блоков кода и копируемого текста используйте тройные кавычки &laquo;```&raquo;. Всё, что будет внутри блока,
+            отобразится с сохранением отступов и кнопкой &laquo;Копировать&raquo;.<br>
+            Пример:<br>
+            <span class="font-mono">```<br>composer install<br>php artisan migrate<br>```</span>
+        </p>
     </div>
     <div class="grid gap-4 sm:grid-cols-2">
         <div class="grid gap-2">
