@@ -216,7 +216,7 @@
                                     </div>
                                     <div>
                                         <h2 class="text-2xl font-semibold text-gray-900">{{ $course->title }}</h2>
-                                        <p class="mt-2 text-sm text-gray-600 max-w-2xl">{{ $course->description }}</p>
+                                        <p class="mt-2 text-sm text-gray-600 max-w-2xl whitespace-pre-line">{{ $course->description }}</p>
                                     </div>
                                     <div class="flex flex-wrap gap-4 text-sm text-gray-500">
                                         <div class="flex items-center gap-2">
@@ -347,7 +347,7 @@
                                                         </div>
                                                     </div>
                                                     @if ($video->short_description)
-                                                        <div class="text-sm text-gray-600">{{ $video->short_description }}</div>
+                                                        <div class="text-sm text-gray-600 whitespace-pre-line">{{ $video->short_description }}</div>
                                                     @endif
                                                     @if ($courseIsUpcoming)
                                                         <div class="mt-2 text-xs font-semibold uppercase tracking-wide text-blue-500">Предзаказ со скидкой 30%</div>

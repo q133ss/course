@@ -86,7 +86,7 @@ class VideoController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'short_description' => ['nullable', 'string', 'max:255'],
             'full_description' => ['nullable', 'string'],
-            'video_file' => [$video ? 'nullable' : 'required', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,video/mpeg', 'max:512000'],
+            'video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,video/mpeg', 'max:512000'],
             'preview_image_file' => ['nullable', 'image', 'max:10240'],
             'duration' => ['nullable', 'integer', 'min:0'],
             'sort_order' => ['nullable', 'integer'],
@@ -105,6 +105,8 @@ class VideoController extends Controller
             'is_free' => $request->boolean('is_free'),
         ];
 
+        $data['video_url'] = $video?->getRawOriginal('video_url') ?? '';
+
         if ($request->hasFile('video_file')) {
             if ($video) {
                 $this->deleteStoredFile($video->getRawOriginal('video_url'));
@@ -112,8 +114,8 @@ class VideoController extends Controller
 
             $path = $request->file('video_file')->store('videos', 'public');
             $data['video_url'] = $path;
-        } elseif ($video) {
-            $data['video_url'] = $video->getRawOriginal('video_url');
+        } elseif (!$video) {
+            $data['video_url'] = '';
         }
 
         if ($request->hasFile('preview_image_file')) {
