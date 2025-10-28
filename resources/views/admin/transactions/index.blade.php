@@ -16,7 +16,8 @@
                 <label class="text-xs font-semibold uppercase text-slate-500" for="status">Статус</label>
                 <select id="status" name="status" class="mt-1 w-40 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                     <option value="">Все</option>
-                    <option value="successful" @selected(($filters['status'] ?? '') === 'successful')>Успешные</option>
+                    <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>В обработке</option>
+                    <option value="paid" @selected(($filters['status'] ?? '') === 'paid')>Оплаченные</option>
                     <option value="failed" @selected(($filters['status'] ?? '') === 'failed')>Неуспешные</option>
                 </select>
             </div>
@@ -24,6 +25,7 @@
                 <label class="text-xs font-semibold uppercase text-slate-500" for="method">Метод</label>
                 <select id="method" name="method" class="mt-1 w-40 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                     <option value="">Все</option>
+                    <option value="yookassa" @selected(($filters['method'] ?? '') === 'yookassa')>YooKassa</option>
                     <option value="card" @selected(($filters['method'] ?? '') === 'card')>Банковская карта</option>
                     <option value="paypal" @selected(($filters['method'] ?? '') === 'paypal')>PayPal</option>
                     <option value="crypto" @selected(($filters['method'] ?? '') === 'crypto')>Криптовалюта</option>
@@ -42,7 +44,7 @@
             <p class="mt-2 text-2xl font-semibold text-slate-900">₽{{ number_format($stats['totalRevenue'], 2, ',', ' ') }}</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase text-slate-500">Успешных оплат</p>
+            <p class="text-xs font-semibold uppercase text-slate-500">Оплаченных заказов</p>
             <p class="mt-2 text-2xl font-semibold text-emerald-600">{{ $stats['successfulPayments'] }}</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -82,10 +84,28 @@
                         <div class="text-xs text-slate-500">{{ $transaction->user->email ?? '' }}</div>
                     </td>
                     <td class="px-6 py-4 text-slate-600">{{ $transaction->course->title ?? '—' }}</td>
-                    <td class="px-6 py-4 text-slate-600">{{ ucfirst($transaction->payment_method ?? '') }}</td>
+                    <td class="px-6 py-4 text-slate-600">
+                        @php
+                            $method = $transaction->payment_method;
+                        @endphp
+                        {{ $method === 'yookassa' ? 'YooKassa' : ($method ? ucfirst($method) : '—') }}
+                    </td>
                     <td class="px-6 py-4">
-                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $transaction->payment_status === 'successful' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
-                            {{ ucfirst($transaction->payment_status ?? '') }}
+                        @php
+                            $status = $transaction->payment_status ?? 'pending';
+                            $statusClasses = match ($status) {
+                                'paid' => 'bg-emerald-100 text-emerald-700',
+                                'failed' => 'bg-rose-100 text-rose-700',
+                                default => 'bg-amber-100 text-amber-700',
+                            };
+                            $statusLabel = match ($status) {
+                                'paid' => 'Оплачен',
+                                'failed' => 'Неуспешен',
+                                default => 'В обработке',
+                            };
+                        @endphp
+                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusClasses }}">
+                            {{ $statusLabel }}
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right font-semibold text-slate-800">₽{{ number_format($transaction->amount, 2, ',', ' ') }}</td>

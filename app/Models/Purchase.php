@@ -21,6 +21,8 @@ class Purchase extends Model
         'amount',
         'payment_status',
         'payment_method',
+        'payment_provider',
+        'provider_payment_id',
         'purchased_at',
     ];
 
