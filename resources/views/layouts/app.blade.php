@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'EduX' }}</title>
+    <title>{{ $title ?? 'Алексей Мирошкин — быстрые курсы по IT и фрилансу' }}</title>
+    <link rel="icon" href="/img/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen">
@@ -28,8 +30,10 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <a href="{{ route('courses.index') }}" class="flex items-center gap-2 text-xl font-semibold text-blue-600">
-                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold">E</span>
-                    <span>EduX</span>
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold">
+                        <img src="/img/favicon.png" alt="">
+                    </span>
+                    <span>Освой IT за минуты</span>
                 </a>
                 @php
                     $navItems = [
