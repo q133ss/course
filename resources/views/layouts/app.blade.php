@@ -39,6 +39,11 @@
                             'active' => request()->routeIs('courses.index') || request()->is('/'),
                         ],
                         [
+                            'label' => 'Об авторе',
+                            'href' => route('about'),
+                            'active' => request()->routeIs('about'),
+                        ],
+                        [
                             'label' => 'Мои курсы',
                             'href' => route('courses.my'),
                             'active' => request()->routeIs('courses.my'),

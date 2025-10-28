@@ -20,6 +20,8 @@ Route::get('/', function () {
     return redirect()->route('courses.index');
 });
 
+Route::view('/about', 'about')->name('about');
+
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/checkout/{course}', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/courses/{course}/preorders', [CoursePreorderController::class, 'store'])->name('courses.preorders.store');
