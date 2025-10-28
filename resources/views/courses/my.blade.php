@@ -160,8 +160,8 @@
                     <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
                         <div class="lg:w-64">
                             <div class="overflow-hidden rounded-2xl bg-gray-100 shadow-inner">
-                                @if ($course->thumbnail)
-                                    <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" class="h-40 w-full object-cover transition duration-500 group-hover:scale-105">
+                                @if ($course->thumbnail_url)
+                                    <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="h-40 w-full object-cover transition duration-500 group-hover:scale-105">
                                 @else
                                     <div class="flex h-40 w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">
                                         <svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

@@ -63,9 +63,9 @@
             @endphp
             <article class="bg-white rounded-2xl shadow p-6 md:p-8">
                 <div class="flex flex-col md:flex-row gap-6">
-                    @if ($course->thumbnail)
+                    @if ($course->thumbnail_url)
                         <div class="md:w-56 flex-shrink-0">
-                            <img src="{{ $course->thumbnail }}" alt="{{ $course->title }}" class="w-full h-36 object-cover rounded-xl">
+                            <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="w-full h-36 object-cover rounded-xl">
                         </div>
                     @endif
                     <div class="flex-1 space-y-3">
