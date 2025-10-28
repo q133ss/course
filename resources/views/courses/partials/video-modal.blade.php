@@ -136,7 +136,7 @@
 
         const initVideoModal = () => {
             const body = document.body;
-            const videoItems = document.querySelectorAll('.video-item');
+            const videoItems = Array.from(document.querySelectorAll('.video-item'));
             const videoModal = document.getElementById('video-modal');
             const closeButton = document.getElementById('video-modal-close');
             const courseTitleEl = document.getElementById('video-modal-course');
@@ -870,6 +870,57 @@
                 }
             });
 
+            let hasOpenedVideoFromQuery = false;
+
+            const getVideoIdFromQuery = () => {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    return params.get('video');
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const openVideoFromQuery = () => {
+                if (hasOpenedVideoFromQuery) {
+                    return;
+                }
+
+                if (!videoItems.length) {
+                    return;
+                }
+
+                const videoIdFromQuery = getVideoIdFromQuery();
+
+                if (!videoIdFromQuery) {
+                    return;
+                }
+
+                const targetItem = videoItems.find((item) => item.dataset.videoId === videoIdFromQuery);
+
+                if (!targetItem) {
+                    return;
+                }
+
+                if (targetItem.dataset.videoFree !== 'true') {
+                    return;
+                }
+
+                if (targetItem.dataset.access !== 'allowed') {
+                    return;
+                }
+
+                if (!targetItem.dataset.videoUrl) {
+                    return;
+                }
+
+                hasOpenedVideoFromQuery = true;
+
+                window.requestAnimationFrame(() => {
+                    targetItem.click();
+                });
+            };
+
             videoItems.forEach((item) => {
                 item.addEventListener('click', () => {
                     const access = item.dataset.access;
@@ -905,6 +956,8 @@
                     openVideoModal();
                 });
             });
+
+            openVideoFromQuery();
 
             playerPreorderCtaButton?.addEventListener('click', (event) => {
                 event.preventDefault();
