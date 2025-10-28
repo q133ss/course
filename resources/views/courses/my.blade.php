@@ -347,7 +347,7 @@
                                                         </div>
                                                     </div>
                                                     @if ($video->short_description)
-                                                        <div class="text-sm text-gray-600">{{ $video->short_description }}</div>
+                                                        <div class="text-sm text-gray-600 whitespace-pre-line">{{ $video->short_description }}</div>
                                                     @endif
                                                     @if ($courseIsUpcoming)
                                                         <div class="mt-2 text-xs font-semibold uppercase tracking-wide text-blue-500">Предзаказ со скидкой 30%</div>

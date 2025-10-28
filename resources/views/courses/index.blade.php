@@ -155,7 +155,7 @@
                                             <div class="flex-1">
                                                 <div class="font-medium text-gray-900">{{ $video->title }}</div>
                                                 @if ($video->short_description)
-                                                    <div class="text-sm text-gray-600">{{ $video->short_description }}</div>
+                                                    <div class="text-sm text-gray-600 whitespace-pre-line">{{ $video->short_description }}</div>
                                                 @endif
                                                 @if ($video->is_free && !$course->is_free)
                                                     <div class="mt-1">

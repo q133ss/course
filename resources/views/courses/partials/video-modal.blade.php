@@ -17,7 +17,7 @@
         <div class="p-6 md:p-8 space-y-4">
             <div id="video-modal-course" class="text-xs font-semibold uppercase tracking-wide text-blue-600 hidden"></div>
             <h2 id="video-modal-title" class="text-2xl font-semibold text-gray-900"></h2>
-            <p id="video-modal-short-description" class="text-sm text-gray-600 hidden"></p>
+            <p id="video-modal-short-description" class="text-sm text-gray-600 hidden whitespace-pre-line"></p>
             <div id="video-modal-player-section" class="video-modal-section hidden space-y-4">
                 <div class="aspect-video bg-black/5 rounded-xl overflow-hidden">
                     <video id="video-modal-video" controls class="w-full h-full bg-black text-white rounded-xl">

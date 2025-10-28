@@ -30,7 +30,14 @@
     </div>
     <div class="grid gap-2">
         <label for="short_description" class="text-sm font-semibold text-slate-600">Короткое описание</label>
-        <input id="short_description" name="short_description" type="text" value="{{ old('short_description', $video->short_description ?? '') }}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+        <textarea
+            id="short_description"
+            name="short_description"
+            rows="3"
+            maxlength="255"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        >{{ old('short_description', $video->short_description ?? '') }}</textarea>
+        <p class="text-xs text-slate-500">Используйте переносы строк, чтобы оформить текст. Максимум 255 символов.</p>
     </div>
     <div class="grid gap-2">
         <label for="full_description" class="text-sm font-semibold text-slate-600">Полное описание</label>
@@ -50,10 +57,9 @@
                 name="video_file"
                 type="file"
                 accept="video/*"
-                @if(!$isEdit) required @endif
                 class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
-            <p class="text-xs text-slate-500">Загрузите файл урока в формате MP4, MOV, AVI, MKV или WEBM.</p>
+            <p class="text-xs text-slate-500">Необязательно. Загрузите файл урока в формате MP4, MOV, AVI, MKV или WEBM, если видео уже готово.</p>
             @if($isEdit && $video->video_url)
                 <p class="text-xs text-slate-500">
                     Текущее видео:
