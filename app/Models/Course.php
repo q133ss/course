@@ -24,6 +24,7 @@ class Course extends Model
         'is_free',
         'start_date',
         'thumbnail',
+        'sort_order',
     ];
 
     /**
@@ -34,6 +35,17 @@ class Course extends Model
         'is_free' => 'boolean',
         'start_date' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Course $course) {
+            if ($course->sort_order !== null) {
+                return;
+            }
+
+            $course->sort_order = (int) (static::max('sort_order') ?? 0) + 1;
+        });
+    }
 
     public function videos(): HasMany
     {

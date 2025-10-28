@@ -48,6 +48,9 @@ Route::prefix('admin')
         Route::get('/', AdminDashboardController::class)->name('dashboard');
 
         Route::resource('users', UserController::class)->except('show');
+        Route::patch('courses/{course}/move/{direction}', [AdminCourseController::class, 'move'])
+            ->whereIn('direction', ['up', 'down'])
+            ->name('courses.move');
         Route::resource('courses', AdminCourseController::class)->except('show');
         Route::get('preorders', [AdminCoursePreorderController::class, 'index'])->name('preorders.index');
         Route::resource('videos', AdminVideoController::class)->except('show');

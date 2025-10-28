@@ -17,6 +17,7 @@
             <th class="px-6 py-3">Slug</th>
             <th class="px-6 py-3">Цена</th>
             <th class="px-6 py-3">Старт</th>
+            <th class="px-6 py-3">Порядок</th>
             <th class="px-6 py-3">Видео</th>
             <th class="px-6 py-3 text-right">Действия</th>
         </tr>
@@ -47,6 +48,35 @@
                     @else
                         <span class="text-xs text-slate-500">Доступен сразу</span>
                     @endif
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-7 min-w-[2.5rem] items-center justify-center rounded-lg bg-slate-100 text-xs font-semibold text-slate-600">
+                            #{{ $course->sort_order }}
+                        </span>
+                        <div class="flex flex-col gap-1">
+                            <form method="POST" action="{{ route('admin.courses.move', ['course' => $course, 'direction' => 'up', 'page' => $courses->currentPage()]) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="flex items-center gap-1 text-xs font-semibold text-slate-500 transition hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40" {{ $course->sort_order <= $minSortOrder ? 'disabled' : '' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+                                        <path fill-rule="evenodd" d="M10 4a.75.75 0 0 1 .53.22l4.75 4.75a.75.75 0 0 1-1.06 1.06L10 5.81 5.78 10.03a.75.75 0 1 1-1.06-1.06l4.75-4.75A.75.75 0 0 1 10 4Z" clip-rule="evenodd" />
+                                    </svg>
+                                    Вверх
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.courses.move', ['course' => $course, 'direction' => 'down', 'page' => $courses->currentPage()]) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="flex items-center gap-1 text-xs font-semibold text-slate-500 transition hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40" {{ $course->sort_order >= $maxSortOrder ? 'disabled' : '' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+                                        <path fill-rule="evenodd" d="M10 15.75a.75.75 0 0 1-.53-.22L4.72 10.78a.75.75 0 1 1 1.06-1.06L10 13.94l4.22-4.22a.75.75 0 0 1 1.06 1.06l-4.75 4.75a.75.75 0 0 1-.53.22Z" clip-rule="evenodd" />
+                                    </svg>
+                                    Вниз
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </td>
                 <td class="px-6 py-4 text-slate-600">{{ $course->videos_count }}</td>
                 <td class="px-6 py-4 text-right">

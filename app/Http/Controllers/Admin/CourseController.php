@@ -17,12 +17,19 @@ class CourseController extends Controller
     {
         $courses = Course::query()
             ->withCount('videos')
+            ->orderBy('sort_order')
             ->orderByDesc('created_at')
             ->paginate(15);
+
+        $sortLimits = Course::query()
+            ->selectRaw('MIN(sort_order) as min_order, MAX(sort_order) as max_order')
+            ->first();
 
         return view('admin.courses.index', [
             'courses' => $courses,
             'pageTitle' => 'Курсы',
+            'minSortOrder' => (int) ($sortLimits->min_order ?? 0),
+            'maxSortOrder' => (int) ($sortLimits->max_order ?? 0),
         ]);
     }
 
@@ -84,6 +91,34 @@ class CourseController extends Controller
         $course->delete();
 
         return redirect()->route('admin.courses.index')->with('status', 'Курс удален.');
+    }
+
+    public function move(Request $request, Course $course, string $direction): RedirectResponse
+    {
+        abort_unless(in_array($direction, ['up', 'down'], true), 404);
+
+        $neighbor = $direction === 'up'
+            ? Course::query()
+                ->where('sort_order', '<', $course->sort_order)
+                ->orderByDesc('sort_order')
+                ->orderByDesc('id')
+                ->first()
+            : Course::query()
+                ->where('sort_order', '>', $course->sort_order)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->first();
+
+        if ($neighbor) {
+            $currentOrder = $course->sort_order;
+
+            $course->update(['sort_order' => $neighbor->sort_order]);
+            $neighbor->update(['sort_order' => $currentOrder]);
+        }
+
+        return redirect()
+            ->route('admin.courses.index', $request->only('page'))
+            ->with('status', 'Порядок курсов обновлён.');
     }
 
     /**

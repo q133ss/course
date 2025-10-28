@@ -30,7 +30,8 @@ class MyCoursesController extends Controller
                     $query->orWhereIn('id', $paidCourseIds);
                 }
             })
-            ->orderBy('title')
+            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
             ->get();
 
         $videoProgress = UserProgress::query()
