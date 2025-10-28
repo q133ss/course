@@ -72,7 +72,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                                 <h2 class="text-xl font-semibold text-gray-900">{{ $course->title }}</h2>
-                                <p class="text-sm text-gray-500 mt-1">{{ $course->description }}</p>
+                                <p class="text-sm text-gray-500 mt-1 whitespace-pre-line">{{ $course->description }}</p>
                                 @if ($courseStartDate)
                                     <div class="mt-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                                         <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
