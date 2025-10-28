@@ -65,7 +65,12 @@
                 <div class="flex flex-col md:flex-row gap-6">
                     @if ($course->thumbnail_url)
                         <div class="md:w-56 flex-shrink-0">
-                            <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="w-full h-36 object-cover rounded-xl">
+                            <img
+                                src="{{ $course->thumbnail_url }}"
+                                alt="{{ $course->title }}"
+                                loading="lazy"
+                                class="w-full h-36 object-cover rounded-xl"
+                            >
                         </div>
                     @endif
                     <div class="flex-1 space-y-3">
@@ -146,7 +151,12 @@
                                             <div class="shrink-0">
                                                 @if ($video->preview_image)
                                                     <div class="w-24 aspect-video overflow-hidden rounded-lg border border-gray-200 bg-gray-100 transition group-hover:border-blue-200">
-                                                        <img src="{{ $video->preview_image }}" alt="Превью видео «{{ $video->title }}»" class="h-full w-full object-cover">
+                                                        <img
+                                                            src="{{ $video->preview_image }}"
+                                                            alt="Превью видео «{{ $video->title }}»"
+                                                            loading="lazy"
+                                                            class="h-full w-full object-cover"
+                                                        >
                                                     </div>
                                                 @else
                                                     <div class="mt-1 flex h-6 w-6 items-center justify-center rounded-full border text-xs text-gray-500 transition group-hover:bg-blue-50 group-hover:text-blue-600">▶</div>

@@ -161,7 +161,12 @@
                         <div class="lg:w-64">
                             <div class="overflow-hidden rounded-2xl bg-gray-100 shadow-inner">
                                 @if ($course->thumbnail_url)
-                                    <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="h-40 w-full object-cover transition duration-500 group-hover:scale-105">
+                                    <img
+                                        src="{{ $course->thumbnail_url }}"
+                                        alt="{{ $course->title }}"
+                                        loading="lazy"
+                                        class="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
+                                    >
                                 @else
                                     <div class="flex h-40 w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">
                                         <svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -314,44 +319,73 @@
                                                         Старт {{ $courseStartDateShort }}
                                                     </div>
                                                 @endif
-                                                <div class="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-500">
-                                                    @if ($videoCompleted)
-                                                        <svg class="h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                                        </svg>
-                                                    @else
-                                                        <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                                        </svg>
-                                                    @endif
-                                                </div>
-                                                <div class="flex-1 space-y-1">
-                                                    <div class="flex flex-wrap items-center justify-between gap-2">
-                                                        <div class="font-medium text-gray-900">{{ $video->title }}</div>
-                                                        <div class="flex items-center gap-3 text-xs text-gray-500">
-                                                            @if ($durationFormatted)
-                                                                <span class="inline-flex items-center gap-1">
-                                                                    <svg class="h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 3" />
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                <div class="relative flex items-start gap-4">
+                                                    <div class="relative shrink-0">
+                                                        @if ($video->preview_image)
+                                                            <div class="w-28 sm:w-32 aspect-video overflow-hidden rounded-xl border border-gray-200 bg-gray-100 transition group-hover:border-blue-200">
+                                                                <img
+                                                                    src="{{ $video->preview_image }}"
+                                                                    alt="Превью видео «{{ $video->title }}»"
+                                                                    loading="lazy"
+                                                                    class="h-full w-full object-cover"
+                                                                >
+                                                            </div>
+                                                            <div class="pointer-events-none absolute inset-x-0 bottom-2 mx-2 h-1.5 rounded-full bg-white/70">
+                                                                <div class="h-full rounded-full bg-blue-500" style="width: {{ $videoProgressPercent }}%"></div>
+                                                            </div>
+                                                            <div class="pointer-events-none absolute top-2 left-2 inline-flex h-8 w-8 items-center justify-center rounded-full {{ $videoCompleted ? 'bg-emerald-500/90 text-white' : 'bg-white/90 text-blue-600 shadow-sm' }}">
+                                                                @if ($videoCompleted)
+                                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                                                     </svg>
-                                                                    {{ $durationFormatted }}
-                                                                </span>
-                                                            @endif
-                                                            <span class="inline-flex items-center gap-1">
-                                                                <svg class="h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5m-16.5 5.25h9m-9 5.25h16.5" />
-                                                                </svg>
-                                                                {{ $videoProgressPercent }}%
-                                                            </span>
-                                                        </div>
+                                                                @else
+                                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                                                    </svg>
+                                                                @endif
+                                                            </div>
+                                                        @else
+                                                            <div class="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-500">
+                                                                @if ($videoCompleted)
+                                                                    <svg class="h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                                    </svg>
+                                                                @else
+                                                                    <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                                                    </svg>
+                                                                @endif
+                                                            </div>
+                                                        @endif
                                                     </div>
-                                                    @if ($video->short_description)
-                                                        <div class="text-sm text-gray-600 whitespace-pre-line">{{ $video->short_description }}</div>
-                                                    @endif
-                                                    @if ($courseIsUpcoming)
-                                                        <div class="mt-2 text-xs font-semibold uppercase tracking-wide text-blue-500">Предзаказ со скидкой 30%</div>
-                                                    @endif
+                                                    <div class="flex-1 space-y-1">
+                                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                                            <div class="font-medium text-gray-900">{{ $video->title }}</div>
+                                                            <div class="flex items-center gap-3 text-xs text-gray-500">
+                                                                @if ($durationFormatted)
+                                                                    <span class="inline-flex items-center gap-1">
+                                                                        <svg class="h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 3" />
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                                        </svg>
+                                                                        {{ $durationFormatted }}
+                                                                    </span>
+                                                                @endif
+                                                                <span class="inline-flex items-center gap-1">
+                                                                    <svg class="h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5m-16.5 5.25h9m-9 5.25h16.5" />
+                                                                    </svg>
+                                                                    {{ $videoProgressPercent }}%
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        @if ($video->short_description)
+                                                            <div class="text-sm text-gray-600 whitespace-pre-line">{{ $video->short_description }}</div>
+                                                        @endif
+                                                        @if ($courseIsUpcoming)
+                                                            <div class="mt-2 text-xs font-semibold uppercase tracking-wide text-blue-500">Предзаказ со скидкой 30%</div>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </li>
                                         @endforeach
