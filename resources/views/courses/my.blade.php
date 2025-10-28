@@ -303,6 +303,7 @@
                                                 data-video-preview-image="{{ e($video->preview_image ?? '') }}"
                                                 data-video-short-description="{{ e($video->short_description ?? '') }}"
                                                 data-video-full-description="{{ e($video->full_description ?? '') }}"
+                                                data-video-free="{{ ($course->is_free || $video->is_free) ? 'true' : 'false' }}"
                                                 data-preorder-url="{{ route('courses.preorders.store', $course) }}"
                                                 data-course-start-date="{{ $course->start_date?->toIso8601String() }}"
                                                 data-course-start-date-readable="{{ e($courseStartDateFormatted ?? '') }}"
