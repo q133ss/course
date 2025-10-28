@@ -21,6 +21,8 @@ Route::get('/', function () {
 });
 
 Route::view('/about', 'about')->name('about');
+Route::view('/privacy-policy', 'legal.privacy-policy')->name('legal.privacy');
+Route::view('/terms-of-use', 'legal.terms-of-use')->name('legal.terms');
 
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/checkout/{course}', [CheckoutController::class, 'show'])->name('checkout.show');
