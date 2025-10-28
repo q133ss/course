@@ -59,6 +59,7 @@
                     <img
                         src="/img/photo_1982612017310181297_c.jpg"
                         alt="Алексей Мирошкин"
+                        loading="lazy"
                         class="w-full h-full object-cover"
                     >
                 </div>
@@ -66,6 +67,7 @@
                     <img
                         src="/img/photo_1982612017310181296_c.jpg"
                         alt="Алексей"
+                        loading="lazy"
                         class="w-full h-full object-cover"
                     >
                 </div>
