@@ -14,7 +14,8 @@ class CourseController extends Controller
         $courses = Course::query()
             ->filter($request->only(['search', 'type']))
             ->with(['videos' => fn ($query) => $query->orderBy('sort_order')])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
             ->get();
 
         $user = $request->user();
