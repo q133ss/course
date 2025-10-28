@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'yookassa' => [
+        'shop_id' => env('YOO_KASSA_SHOP_ID'),
+        'secret_key' => env('YOO_KASSA_SECRET_KEY'),
+        'return_url' => env('YOO_KASSA_RETURN_URL'),
+    ],
+
 ];

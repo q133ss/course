@@ -46,7 +46,7 @@ class TransactionController extends Controller
 
         $stats = [
             'totalRevenue' => Purchase::query()->sum('amount'),
-            'successfulPayments' => Purchase::query()->where('payment_status', 'successful')->count(),
+            'successfulPayments' => Purchase::query()->where('payment_status', 'paid')->count(),
             'failedPayments' => Purchase::query()->where('payment_status', 'failed')->count(),
         ];
 

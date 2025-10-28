@@ -14,6 +14,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CoursePreorderController;
 use App\Http\Controllers\MyCoursesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Webhooks\YooKassaWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-courses', MyCoursesController::class)->name('courses.my');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/checkout/{course}', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/{course}/status/{purchase}', [CheckoutController::class, 'status'])->name('checkout.status');
 });
 
 Route::prefix('admin')
@@ -58,3 +61,5 @@ Route::prefix('admin')
 
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
     });
+
+Route::post('/webhooks/yookassa', YooKassaWebhookController::class)->name('webhooks.yookassa');
