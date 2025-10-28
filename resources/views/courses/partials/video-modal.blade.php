@@ -52,7 +52,10 @@
                         </div>
                     </div>
                 </div>
-                <div id="video-modal-full-description" class="text-sm text-gray-700 whitespace-pre-line hidden"></div>
+                <div
+                    id="video-modal-full-description"
+                    class="text-sm text-gray-700 hidden max-h-80 overflow-y-auto pr-1 space-y-4"
+                ></div>
             </div>
             <div id="video-modal-pay-section" class="video-modal-section hidden bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-3">
                 <div class="text-sm text-yellow-800">
@@ -227,6 +230,196 @@
                 element.classList.remove('hidden');
             };
 
+            const copyButtonClassStates = {
+                default:
+                    'absolute top-3 right-3 inline-flex items-center gap-1 rounded-lg bg-slate-700/80 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500',
+                success:
+                    'absolute top-3 right-3 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500',
+                error:
+                    'absolute top-3 right-3 inline-flex items-center gap-1 rounded-lg bg-rose-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500',
+            };
+
+            const copyTextToClipboard = async (text) => {
+                if (!text) {
+                    return false;
+                }
+
+                if (navigator?.clipboard?.writeText) {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        return true;
+                    } catch (error) {
+                        // Попробуем резервный вариант ниже.
+                    }
+                }
+
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.top = '-9999px';
+                textarea.style.opacity = '0';
+
+                document.body.appendChild(textarea);
+
+                textarea.focus();
+                textarea.select();
+
+                let copied = false;
+
+                try {
+                    copied = document.execCommand('copy');
+                } catch (error) {
+                    copied = false;
+                }
+
+                document.body.removeChild(textarea);
+
+                return copied;
+            };
+
+            const createCopyButton = (textToCopy) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = copyButtonClassStates.default;
+                button.textContent = 'Копировать';
+
+                button.addEventListener('click', async () => {
+                    const resetTimeoutId = button.dataset.resetTimeoutId;
+
+                    if (resetTimeoutId) {
+                        window.clearTimeout(Number(resetTimeoutId));
+                        delete button.dataset.resetTimeoutId;
+                    }
+
+                    const successful = await copyTextToClipboard(textToCopy);
+
+                    if (successful) {
+                        button.textContent = 'Скопировано';
+                        button.className = copyButtonClassStates.success;
+                    } else {
+                        button.textContent = 'Не удалось';
+                        button.className = copyButtonClassStates.error;
+                    }
+
+                    const timeoutId = window.setTimeout(() => {
+                        button.textContent = 'Копировать';
+                        button.className = copyButtonClassStates.default;
+                        delete button.dataset.resetTimeoutId;
+                    }, 2000);
+
+                    button.dataset.resetTimeoutId = String(timeoutId);
+                });
+
+                return button;
+            };
+
+            const createCodeBlock = (code) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative';
+
+                const pre = document.createElement('pre');
+                pre.className = 'whitespace-pre overflow-x-auto rounded-xl bg-slate-900 px-4 py-4 pr-12 text-xs leading-relaxed text-slate-100 shadow-sm font-mono';
+                pre.textContent = code;
+
+                const copyButton = createCopyButton(code);
+
+                wrapper.appendChild(pre);
+                wrapper.appendChild(copyButton);
+
+                return wrapper;
+            };
+
+            const createTextBlock = (text) => {
+                const trimmed = text.replace(/^[\n\r]+|[\n\r]+$/g, '');
+
+                if (!trimmed) {
+                    return null;
+                }
+
+                const block = document.createElement('div');
+                block.className = 'whitespace-pre-wrap leading-relaxed';
+                block.textContent = trimmed;
+                return block;
+            };
+
+            const renderFullDescription = (element, rawValue) => {
+                if (!element) {
+                    return;
+                }
+
+                const value = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
+
+                if (!value.trim()) {
+                    element.innerHTML = '';
+                    hideElement(element);
+                    return;
+                }
+
+                const normalizedValue = value.replace(/\r\n/g, '\n');
+                const fragments = [];
+                const codeBlockRegex = /```(?:([^`\n]+)\n)?([\s\S]*?)```/g;
+                let lastIndex = 0;
+                let match;
+
+                while ((match = codeBlockRegex.exec(normalizedValue)) !== null) {
+                    const matchStart = match.index;
+                    const textSegment = normalizedValue.slice(lastIndex, matchStart);
+
+                    if (textSegment.trim()) {
+                        fragments.push({ type: 'text', content: textSegment });
+                    }
+
+                    const codeContent = (match[2] ?? '').replace(/^[\n\r]+|[\n\r]+$/g, '');
+
+                    if (codeContent.trim()) {
+                        fragments.push({ type: 'code', content: codeContent });
+                    }
+
+                    lastIndex = codeBlockRegex.lastIndex;
+                }
+
+                const remainingText = normalizedValue.slice(lastIndex);
+
+                if (remainingText.trim()) {
+                    fragments.push({ type: 'text', content: remainingText });
+                }
+
+                element.innerHTML = '';
+
+                if (!fragments.length) {
+                    const fallbackBlock = createTextBlock(normalizedValue);
+
+                    if (fallbackBlock) {
+                        element.appendChild(fallbackBlock);
+                        showElement(element);
+                        return;
+                    }
+
+                    hideElement(element);
+                    return;
+                }
+
+                fragments.forEach((fragment) => {
+                    if (fragment.type === 'code') {
+                        element.appendChild(createCodeBlock(fragment.content));
+                    } else {
+                        const textBlock = createTextBlock(fragment.content);
+                        if (textBlock) {
+                            element.appendChild(textBlock);
+                        }
+                    }
+                });
+
+                if (element.childElementCount === 0) {
+                    hideElement(element);
+                    return;
+                }
+
+                element.scrollTop = 0;
+                showElement(element);
+            };
+
             const resetVideoPlayer = () => {
                 if (!videoElement) return;
                 videoElement.pause();
@@ -350,7 +543,7 @@
                 populateText(courseTitleEl, dataset.courseTitle);
                 populateText(videoTitleEl, dataset.videoTitle);
                 populateText(shortDescriptionEl, dataset.videoShortDescription);
-                populateText(fullDescriptionEl, dataset.videoFullDescription);
+                renderFullDescription(fullDescriptionEl, dataset.videoFullDescription);
 
                 if (dataset.videoUrl) {
                     videoSource?.setAttribute('src', dataset.videoUrl);
