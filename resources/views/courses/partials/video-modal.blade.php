@@ -85,16 +85,31 @@
                             placeholder="Как к вам обращаться"
                         >
                     </div>
-                    <div class="space-y-1">
-                        <label for="video-modal-preorder-contact" class="text-sm font-semibold text-gray-700">Телефон или Telegram</label>
-                        <input
-                            id="video-modal-preorder-contact"
-                            name="contact"
-                            type="text"
-                            required
-                            class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                            placeholder="Например, +7 999 123-45-67 или @username"
-                        >
+                    <div class="space-y-2">
+                        <label for="video-modal-preorder-contact" class="text-sm font-semibold text-gray-700">Как с вами связаться</label>
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <div class="sm:w-40">
+                                <label for="video-modal-preorder-contact-type" class="sr-only">Тип связи</label>
+                                <select
+                                    id="video-modal-preorder-contact-type"
+                                    name="contact_type"
+                                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                >
+                                    <option value="phone" selected>Телефон</option>
+                                    <option value="telegram">Telegram</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <input
+                                    id="video-modal-preorder-contact"
+                                    name="contact"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                    placeholder="+9(999)999-99-99"
+                                >
+                            </div>
+                        </div>
                     </div>
                     <p class="text-xs text-gray-500">Мы напомним о старте и пришлём промокод со скидкой перед открытием доступа.</p>
                     <div id="video-modal-preorder-error" class="hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
@@ -146,6 +161,7 @@
             const preorderNameField = document.getElementById('video-modal-preorder-name-field');
             const preorderNameInput = document.getElementById('video-modal-preorder-name');
             const preorderContactInput = document.getElementById('video-modal-preorder-contact');
+            const preorderContactTypeSelect = document.getElementById('video-modal-preorder-contact-type');
             const preorderErrorEl = document.getElementById('video-modal-preorder-error');
             const preorderSuccessEl = document.getElementById('video-modal-preorder-success');
             const preorderSubmitButton = document.getElementById('video-modal-preorder-submit');
@@ -156,6 +172,9 @@
             const isAuthenticated = videoModal?.dataset.authenticated === 'true';
             const authenticatedName = videoModal?.dataset.authName || '';
             const preorderDiscountValue = videoModal?.dataset.preorderDiscount || '30';
+            const CONTACT_TYPE_PHONE = 'phone';
+            const CONTACT_TYPE_TELEGRAM = 'telegram';
+            const DEFAULT_CONTACT_TYPE = CONTACT_TYPE_PHONE;
             let activePreorderUrl = null;
             let activeItem = null;
             let activeCourseId = null;
@@ -475,6 +494,161 @@
                 }
             };
 
+            const normalizeContactType = (value) =>
+                value === CONTACT_TYPE_TELEGRAM ? CONTACT_TYPE_TELEGRAM : CONTACT_TYPE_PHONE;
+
+            const getSelectedContactType = () => normalizeContactType(preorderContactTypeSelect?.value || DEFAULT_CONTACT_TYPE);
+
+            const updateContactInputAttributes = (type) => {
+                if (!preorderContactInput) {
+                    return;
+                }
+
+                if (type === CONTACT_TYPE_TELEGRAM) {
+                    preorderContactInput.placeholder = '@username';
+                    preorderContactInput.setAttribute('inputmode', 'text');
+                } else {
+                    preorderContactInput.placeholder = '+9(999)999-99-99';
+                    preorderContactInput.setAttribute('inputmode', 'tel');
+                }
+            };
+
+            const formatPhoneContactValue = (value) => {
+                if (typeof value !== 'string') {
+                    return '';
+                }
+
+                const digitsOnly = value.replace(/\D/g, '').slice(0, 11);
+
+                if (digitsOnly.length === 0) {
+                    return '';
+                }
+
+                let result = `+${digitsOnly[0]}`;
+
+                if (digitsOnly.length > 1) {
+                    const area = digitsOnly.slice(1, Math.min(4, digitsOnly.length));
+                    result += `(${area}`;
+
+                    if (digitsOnly.length >= 4) {
+                        result += ')';
+                    }
+                }
+
+                if (digitsOnly.length >= 4) {
+                    result += digitsOnly.slice(4, Math.min(7, digitsOnly.length));
+                }
+
+                if (digitsOnly.length >= 7) {
+                    result += `-${digitsOnly.slice(7, Math.min(9, digitsOnly.length))}`;
+                }
+
+                if (digitsOnly.length >= 9) {
+                    result += `-${digitsOnly.slice(9, Math.min(11, digitsOnly.length))}`;
+                }
+
+                return result;
+            };
+
+            const formatTelegramContactValue = (value) => {
+                if (typeof value !== 'string') {
+                    return '';
+                }
+
+                const trimmed = value.trim();
+
+                if (!trimmed) {
+                    return '';
+                }
+
+                if (trimmed === '@') {
+                    return '@';
+                }
+
+                const withoutAt = trimmed.replace(/^@+/, '');
+                const sanitized = withoutAt.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 32);
+
+                if (sanitized) {
+                    return `@${sanitized}`;
+                }
+
+                return trimmed.startsWith('@') ? '@' : '';
+            };
+
+            const formatContactValueByType = (value, type) =>
+                type === CONTACT_TYPE_TELEGRAM ? formatTelegramContactValue(value) : formatPhoneContactValue(value);
+
+            const detectContactTypeFromValue = (value) => {
+                if (typeof value !== 'string') {
+                    return null;
+                }
+
+                const trimmed = value.trim();
+
+                if (trimmed.startsWith('@')) {
+                    return CONTACT_TYPE_TELEGRAM;
+                }
+
+                if (trimmed.replace(/\D/g, '').length > 0) {
+                    return CONTACT_TYPE_PHONE;
+                }
+
+                return null;
+            };
+
+            const syncContactValueWithType = () => {
+                if (!preorderContactInput) {
+                    return;
+                }
+
+                const type = getSelectedContactType();
+                const formatted = formatContactValueByType(preorderContactInput.value, type);
+
+                if (preorderContactInput.value !== formatted) {
+                    preorderContactInput.value = formatted;
+
+                    try {
+                        const position = formatted.length;
+                        preorderContactInput.setSelectionRange(position, position);
+                    } catch (error) {
+                        // Игнорируем невозможность установить позицию курсора в некоторых браузерах.
+                    }
+                }
+            };
+
+            const setContactType = (type) => {
+                const normalized = normalizeContactType(type);
+
+                if (preorderContactTypeSelect) {
+                    preorderContactTypeSelect.value = normalized;
+                }
+
+                updateContactInputAttributes(normalized);
+
+                return normalized;
+            };
+
+            const applyContactType = (type) => {
+                const normalized = setContactType(type);
+                syncContactValueWithType();
+                return normalized;
+            };
+
+            applyContactType(preorderContactTypeSelect?.value || DEFAULT_CONTACT_TYPE);
+
+            preorderContactTypeSelect?.addEventListener('change', () => {
+                const newType = preorderContactTypeSelect.value;
+                applyContactType(newType);
+            });
+
+            preorderContactInput?.addEventListener('input', () => {
+                syncContactValueWithType();
+            });
+
+            preorderContactInput?.addEventListener('blur', () => {
+                syncContactValueWithType();
+            });
+
             const resetPreorderForm = () => {
                 activePreorderUrl = null;
                 activeCourseId = null;
@@ -482,6 +656,7 @@
                 if (preorderForm) {
                     preorderForm.reset();
                 }
+                applyContactType(preorderContactTypeSelect?.value || DEFAULT_CONTACT_TYPE);
                 if (preorderNameInput && isAuthenticated) {
                     preorderNameInput.value = authenticatedName;
                 }
@@ -619,8 +794,10 @@
                 }
 
                 populateText(courseTitleEl, dataset.courseTitle);
-                populateText(videoTitleEl, dataset.videoTitle);
-                populateText(shortDescriptionEl, dataset.videoShortDescription);
+                const preorderTitle = dataset.courseTitle || dataset.videoTitle;
+                const preorderDescription = dataset.courseDescription || dataset.videoShortDescription || '';
+                populateText(videoTitleEl, preorderTitle);
+                populateText(shortDescriptionEl, preorderDescription);
                 hideElement(fullDescriptionEl);
                 hideElement(playerPreorderCta);
                 resetVideoPlayer();
@@ -658,9 +835,16 @@
                     }
                 }
 
+                const storedContactValue = storedPreorder?.contact || '';
+
                 if (preorderContactInput) {
-                    preorderContactInput.value = storedPreorder?.contact || '';
+                    preorderContactInput.value = storedContactValue;
                 }
+
+                const storedContactType =
+                    storedPreorder?.contactType || detectContactTypeFromValue(storedContactValue) || DEFAULT_CONTACT_TYPE;
+
+                applyContactType(storedContactType);
 
                 activePreorderUrl = dataset.preorderUrl || null;
 
@@ -742,8 +926,14 @@
                     return;
                 }
 
-                const contactValue = (preorderContactInput?.value || '').trim();
+                const rawContactValue = preorderContactInput?.value ?? '';
+                const contactTypeValue = getSelectedContactType();
+                const contactValue = formatContactValueByType(rawContactValue, contactTypeValue);
                 const nameValue = (preorderNameInput?.value || '').trim();
+
+                if (preorderContactInput) {
+                    preorderContactInput.value = contactValue;
+                }
 
                 if (!contactValue) {
                     setStatusMessage(preorderSuccessEl, '');
@@ -797,6 +987,7 @@
                         if (activeCourseId) {
                             saveStoredPreorder(activeCourseId, {
                                 contact: contactValue,
+                                contactType: contactTypeValue,
                                 name: isAuthenticated ? authenticatedName : nameValue,
                                 preorderId: activePreorderId,
                                 submitted: true,

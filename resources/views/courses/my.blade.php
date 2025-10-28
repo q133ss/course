@@ -296,6 +296,7 @@
                                                 ])
                                                 data-course-id="{{ $course->id }}"
                                                 data-course-title="{{ e($course->title) }}"
+                                                data-course-description="{{ e($course->description ?? '') }}"
                                                 data-video-id="{{ $video->id }}"
                                                 data-video-title="{{ e($video->title) }}"
                                                 data-video-url="{{ e($video->video_url) }}"
