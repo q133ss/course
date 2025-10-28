@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -40,6 +41,10 @@ class CourseController extends Controller
             $data['slug'] = Str::slug($data['title']);
         }
 
+        if ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')->store('course-thumbnails', 'public');
+        }
+
         Course::query()->create($data);
 
         return redirect()->route('admin.courses.index')->with('status', 'Курс создан.');
@@ -59,6 +64,14 @@ class CourseController extends Controller
 
         if (blank($data['slug'] ?? null)) {
             $data['slug'] = Str::slug($data['title']);
+        }
+
+        if ($request->hasFile('thumbnail')) {
+            if ($course->thumbnail && ! Str::startsWith($course->thumbnail, ['http://', 'https://'])) {
+                Storage::disk('public')->delete($course->thumbnail);
+            }
+
+            $data['thumbnail'] = $request->file('thumbnail')->store('course-thumbnails', 'public');
         }
 
         $course->update($data);
@@ -84,7 +97,7 @@ class CourseController extends Controller
             'description' => ['nullable', 'string'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'is_free' => ['nullable', 'boolean'],
-            'thumbnail' => ['nullable', 'string', 'max:255'],
+            'thumbnail' => ['nullable', 'image', 'max:5120'],
             'start_date' => ['nullable', 'date'],
         ];
 
@@ -99,6 +112,10 @@ class CourseController extends Controller
         $data['is_free'] = $request->boolean('is_free');
         $data['price'] = $data['is_free'] ? 0 : ($data['price'] ?? 0);
         $data['start_date'] = $data['start_date'] ?? null;
+
+        if (! $request->hasFile('thumbnail')) {
+            unset($data['thumbnail']);
+        }
 
         return $data;
     }

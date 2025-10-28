@@ -44,7 +44,23 @@
         </p>
     </div>
     <div class="grid gap-2">
-        <label for="thumbnail" class="text-sm font-semibold text-slate-600">URL обложки</label>
-        <input id="thumbnail" name="thumbnail" type="text" value="{{ old('thumbnail', $course->thumbnail ?? '') }}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+        <label for="thumbnail" class="text-sm font-semibold text-slate-600">Обложка курса</label>
+        <input
+            id="thumbnail"
+            name="thumbnail"
+            type="file"
+            accept="image/*"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        >
+        <p class="text-xs text-slate-500">Загрузите изображение в формате JPG, PNG или WebP размером до 5 МБ.</p>
+        @error('thumbnail')
+            <p class="text-sm text-red-600">{{ $message }}</p>
+        @enderror
+        @if ($isEdit && $course->thumbnail_url)
+            <div class="space-y-2 rounded-xl border border-dashed border-slate-200 p-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Текущая обложка</p>
+                <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="h-40 w-full rounded-lg object-cover">
+            </div>
+        @endif
     </div>
 </div>

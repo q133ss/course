@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-semibold text-slate-800">Редактирование курса</h1>
     <p class="text-sm text-slate-500">Обновите информацию о курсе.</p>
 
-    <form method="POST" action="{{ route('admin.courses.update', $course) }}" class="mt-6 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="POST" action="{{ route('admin.courses.update', $course) }}" enctype="multipart/form-data" class="mt-6 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         @csrf
         @method('PUT')
         @include('admin.courses._form')
