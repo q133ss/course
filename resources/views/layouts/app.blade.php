@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,7 +31,7 @@
             <div class="flex items-center justify-between h-16">
                 <a href="{{ route('courses.index') }}" class="flex items-center gap-2 text-xl font-semibold text-blue-600">
                     <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold">
-                        <img src="/img/favicon.png" alt="">
+                        <img src="/img/favicon.png" alt="Логотип Освой IT за минуты" loading="lazy">
                     </span>
                     <span>Освой IT за минуты</span>
                 </a>
@@ -188,6 +188,22 @@
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         @yield('content')
     </main>
+
+    <footer class="border-t border-gray-100 bg-white/80">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
+                <p class="text-center sm:text-left">© {{ date('Y') }} Освой IT за минуты. Все права защищены.</p>
+                <nav class="flex flex-wrap items-center justify-center gap-4" aria-label="Ссылки на юридическую информацию">
+                    <a href="{{ url('/privacy-policy') }}" class="hover:text-blue-600 transition" title="Политика конфиденциальности">
+                        Политика конфиденциальности
+                    </a>
+                    <a href="{{ url('/terms-of-use') }}" class="hover:text-blue-600 transition" title="Пользовательское соглашение">
+                        Пользовательское соглашение
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </footer>
 
     <div
         id="auth-modal"
