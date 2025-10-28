@@ -123,6 +123,7 @@
                                     ])
                                         data-course-id="{{ $course->id }}"
                                         data-course-title="{{ e($course->title) }}"
+                                        data-course-description="{{ e($course->description ?? '') }}"
                                         data-checkout-url="{{ route('checkout.show', $course) }}"
                                         data-video-id="{{ $video->id }}"
                                         data-video-title="{{ e($video->title) }}"
